@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>科技管理實務 選擇題練習</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --primary: #8A9FA7;
+  --primary-dark: #6B8088;
+  --success: #7B9E80;
+  --danger: #AE7878;
+  --bg: #F0EBE3;
+  --card: #F8F5F1;
+  --text: #3A3530;
+  --text-light: #8A847E;
+  --border: #D8D1C9;
+  --radius: 12px;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+.container { max-width: 800px; margin: 0 auto; padding: 20px; }
+
+.header { text-align: center; padding: 30px 20px 20px; }
+.header h1 { font-size: 28px; font-weight: 700; color: var(--primary-dark); margin-bottom: 8px; }
+.header p { color: var(--text-light); font-size: 15px; }
+.back-link {
+  display: inline-block; margin-bottom: 12px;
+  color: var(--primary-dark); text-decoration: none; font-size: 14px; font-weight: 600;
+  padding: 6px 14px; background: #EAE5DF; border-radius: 8px; transition: background 0.2s;
+}
+.back-link:hover { background: #D8D1C9; }
+
+.mode-group { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+.mode-card {
+  flex: 1; min-width: calc(50% - 8px); padding: 20px 16px; border: 2px solid var(--border);
+  border-radius: var(--radius); background: var(--card); cursor: pointer; text-align: center; transition: all 0.2s;
+}
+.mode-card:hover { border-color: var(--primary); }
+.mode-card.active { border-color: var(--primary); background: #DCE5E9; }
+.mode-card h3 { font-size: 17px; margin-bottom: 6px; }
+.mode-card p { font-size: 13px; color: var(--text-light); }
+
+.start-btn {
+  display: block; width: 100%; padding: 16px; margin-top: 8px; border: none;
+  border-radius: var(--radius); background: var(--primary); color: white;
+  font-size: 18px; font-weight: 600; cursor: pointer; transition: background 0.2s;
+}
+.start-btn:hover { background: var(--primary-dark); }
+
+.quiz-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 20px; background: var(--card); border-radius: var(--radius);
+  margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.quiz-info { font-size: 14px; color: var(--text-light); }
+.quiz-info strong { color: var(--text); }
+
+.progress-bar { width: 100%; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--primary); border-radius: 3px; transition: width 0.3s; }
+
+.question-card {
+  background: var(--card); border-radius: var(--radius); padding: 28px;
+  margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.chapter-tag {
+  display: inline-block; background: #DCE5E9; color: var(--primary-dark);
+  font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px; margin-bottom: 14px;
+}
+.question-number {
+  display: inline-block; background: #EAE5DF; color: var(--text-light);
+  font-weight: 700; font-size: 13px; padding: 4px 12px; border-radius: 999px; margin-bottom: 16px; margin-left: 6px;
+}
+.question-text { font-size: 17px; font-weight: 500; line-height: 1.8; margin-bottom: 24px; }
+
+.options { display: flex; flex-direction: column; gap: 10px; }
+.option-btn {
+  display: flex; align-items: flex-start; gap: 12px;
+  background: var(--bg); border: 2px solid var(--border); border-radius: var(--radius);
+  padding: 14px 18px; cursor: pointer; transition: all 0.2s;
+  font-size: 15px; line-height: 1.7; text-align: left;
+  font-family: inherit; color: var(--text); width: 100%;
+}
+.option-btn:hover:not(.disabled) { border-color: var(--primary); background: #DCE5E9; }
+.option-btn .opt-label {
+  flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%;
+  background: var(--border); display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 13px; color: var(--text-light); transition: all 0.2s;
+}
+.option-btn.correct-answer { border-color: var(--success); background: #E4EFE5; }
+.option-btn.correct-answer .opt-label { background: var(--success); color: white; }
+.option-btn.wrong-answer { border-color: var(--danger); background: #F2E5E5; }
+.option-btn.wrong-answer .opt-label { background: var(--danger); color: white; }
+.option-btn.disabled { cursor: default; }
+.option-btn.disabled:not(.correct-answer):not(.wrong-answer) { opacity: 0.65; }
+
+.feedback-bar {
+  display: flex; align-items: flex-start; gap: 10px; padding: 14px 18px;
+  border-radius: var(--radius); font-weight: 600; font-size: 15px; margin-bottom: 16px; line-height: 1.6;
+}
+.feedback-bar.correct { background: #E4EFE5; color: var(--success); }
+.feedback-bar.wrong { background: #F2E5E5; color: var(--danger); }
+
+.nav-buttons { display: flex; gap: 12px; }
+.nav-btn {
+  flex: 1; padding: 14px; border: 2px solid var(--border); border-radius: var(--radius);
+  background: var(--card); font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+}
+.nav-btn:hover:not(:disabled) { border-color: var(--primary); }
+.nav-btn:disabled { opacity: 0.4; cursor: default; }
+.nav-btn.primary { background: var(--primary); border-color: var(--primary); color: white; }
+.nav-btn.primary:hover:not(:disabled) { background: var(--primary-dark); }
+
+.result-card {
+  background: var(--card); border-radius: var(--radius); padding: 40px 28px;
+  text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.result-score { font-size: 64px; font-weight: 800; color: var(--primary-dark); margin: 20px 0 8px; }
+.result-detail { color: var(--text-light); font-size: 16px; margin-bottom: 30px; }
+.result-stats { display: flex; justify-content: center; gap: 30px; margin-bottom: 30px; }
+.stat-item { text-align: center; }
+.stat-value { font-size: 28px; font-weight: 700; }
+.stat-value.correct-color { color: var(--success); }
+.stat-value.wrong-color { color: var(--danger); }
+.stat-label { font-size: 13px; color: var(--text-light); margin-top: 4px; }
+.result-bar { width: 100%; height: 12px; background: #ECDADA; border-radius: 6px; overflow: hidden; margin-bottom: 30px; }
+.result-bar-fill { height: 100%; background: var(--success); border-radius: 6px; transition: width 1s ease; }
+
+.review-section { margin-top: 24px; text-align: left; }
+.review-item {
+  background: var(--card); border: 2px solid var(--border); border-radius: var(--radius);
+  padding: 18px; margin-bottom: 10px;
+}
+.review-item.was-wrong { border-color: #fecaca; }
+.review-item.was-correct { border-color: #bbf7d0; }
+.review-q-text { font-size: 15px; line-height: 1.7; margin-bottom: 8px; }
+.review-answer { font-size: 14px; font-weight: 600; }
+.review-answer.ans-correct { color: var(--success); }
+.review-answer.ans-wrong { color: var(--danger); }
+.review-note { font-size: 13px; color: var(--text-light); margin-top: 6px; }
+
+.history-section { margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border); }
+.history-section h2 { font-size: 16px; font-weight: 600; margin-bottom: 12px; }
+.history-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 16px; background: var(--card); border-radius: 8px;
+  margin-bottom: 8px; font-size: 14px; border: 1px solid var(--border);
+}
+.history-score { font-weight: 700; }
+
+.hidden { display: none !important; }
+
+.tab-bar { display: flex; gap: 8px; margin-bottom: 24px; }
+.tab-btn {
+  flex: 1; padding: 12px; border: 2px solid var(--border); border-radius: var(--radius);
+  background: var(--card); font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+}
+.tab-btn.active { background: var(--primary); border-color: var(--primary); color: white; }
+.tab-btn:not(.active):hover { border-color: var(--primary); }
+
+/* Reference */
+.ref-chapter-tabs { display: flex; justify-content: center; gap: 7px; margin-bottom: 20px; flex-wrap: wrap; }
+.ref-ch-btn {
+  padding: 7px 16px; border: 2px solid var(--border); border-radius: 9px;
+  background: var(--card); color: var(--text-light); cursor: pointer; font-size: 14px; font-family: inherit; transition: all 0.25s;
+}
+.ref-ch-btn:hover { border-color: var(--primary); color: var(--primary-dark); }
+.ref-ch-btn.active { background: var(--primary); border-color: var(--primary); color: white; }
+.ref-section { margin-bottom: 14px; }
+.ref-section-title {
+  background: var(--card); border: 1px solid var(--border); border-radius: 11px;
+  padding: 13px 18px; cursor: pointer; transition: all 0.25s;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.ref-section-title:hover { border-color: var(--primary); background: #EAE5DF; }
+.ref-section-title h4 { color: var(--primary-dark); font-size: 14px; }
+.ref-section-title .arrow { color: var(--primary); font-size: 1.1rem; transition: transform 0.25s; }
+.ref-section-title.open .arrow { transform: rotate(180deg); }
+.ref-items { display: none; padding: 6px 0; }
+.ref-items.show { display: block; }
+.ref-item {
+  background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+  padding: 16px 18px; margin: 7px 0;
+}
+.ref-item .ref-q {
+  font-weight: 600; font-size: 14px; color: var(--text); margin-bottom: 9px; line-height: 1.7;
+  border-left: 3px solid var(--primary); padding-left: 11px;
+}
+.ref-item .ref-a {
+  font-size: 14px; color: var(--text-light); line-height: 1.8;
+  padding: 9px 13px; background: #EAE5DF; border-radius: 7px;
+}
+.ref-item .ref-a strong { color: var(--success); }
+.search-box { display: flex; justify-content: center; margin-bottom: 18px; }
+.search-box input {
+  width: 100%; max-width: 480px; padding: 11px 16px;
+  border: 2px solid var(--border); border-radius: 10px;
+  background: var(--card); color: var(--text); font-size: 14px;
+  font-family: inherit; outline: none; transition: border-color 0.25s;
+}
+.search-box input::placeholder { color: #C5BDB6; }
+.search-box input:focus { border-color: var(--primary); }
+.no-results { text-align: center; color: var(--text-light); padding: 36px; font-size: 14px; }
+
+@media (max-width: 600px) {
+  .container { padding: 12px; }
+  .header { padding: 20px 12px 16px; }
+  .header h1 { font-size: 22px; }
+  .question-card { padding: 20px 16px; }
+  .question-text { font-size: 15px; }
+  .result-score { font-size: 48px; }
+  .mode-card { min-width: 100%; }
+  .option-btn { font-size: 14px; padding: 12px 14px; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- 首頁 -->
+  <div id="page-home">
+    <div class="header">
+      <a href="index.html" class="back-link">&#9664; 返回主頁</a>
+      <h1>科技管理實務 選擇題練習</h1>
+    </div>
+
+    <div class="tab-bar">
+      <button class="tab-btn active" id="tab-quiz" onclick="switchTab('quiz')">選擇題練習</button>
+      <button class="tab-btn" id="tab-ref" onclick="switchTab('ref')">參考資料</button>
+    </div>
+
+    <div id="section-quiz">
+      <p style="color:var(--text-light);font-size:14px;margin-bottom:16px;text-align:center">共三章 60 題選擇題</p>
+      <div class="mode-group">
+        <div class="mode-card active" data-mode="random" onclick="selectMode('random')">
+          <h3>隨機 25 題</h3>
+          <p>從 60 題中隨機抽取 25 題</p>
+        </div>
+        <div class="mode-card" data-mode="all" onclick="selectMode('all')">
+          <h3>全部 60 題</h3>
+          <p>依序作答全部三章</p>
+        </div>
+        <div class="mode-card" data-mode="ch0" onclick="selectMode('ch0')">
+          <h3>第一章</h3>
+          <p>科技管理導論 · 20 題</p>
+        </div>
+        <div class="mode-card" data-mode="ch1" onclick="selectMode('ch1')">
+          <h3>第二章</h3>
+          <p>科技政策與國家競爭力 · 20 題</p>
+        </div>
+        <div class="mode-card" data-mode="ch2" onclick="selectMode('ch2')">
+          <h3>第三章</h3>
+          <p>科技前瞻與變遷 · 20 題</p>
+        </div>
+      </div>
+      <button class="start-btn" onclick="startQuiz()">開始練習</button>
+      <div class="history-section hidden" id="history-section">
+        <h2>練習紀錄</h2>
+        <div id="history-list"></div>
+      </div>
+    </div>
+
+    <div id="section-ref" class="hidden">
+      <div class="search-box"><input type="text" id="ref-search" placeholder="&#128269; 搜尋關鍵字（例如：德爾菲、Porter、雲端）" oninput="onRefSearch(this.value)"></div>
+      <div class="ref-chapter-tabs" id="ref-tabs"></div>
+      <div id="ref-content"></div>
+    </div>
+  </div>
+
+  <!-- 測驗 -->
+  <div id="page-quiz" class="hidden">
+    <div class="quiz-header">
+      <div>
+        <div class="quiz-info"><strong id="quiz-title"></strong></div>
+        <div class="quiz-info">
+          第 <strong id="quiz-current">1</strong> / <strong id="quiz-total">25</strong> 題
+          <span style="margin-left:12px">正確: <strong id="quiz-correct" style="color:var(--success)">0</strong></span>
+        </div>
+      </div>
+      <button class="nav-btn" onclick="endQuiz()" style="flex:none;padding:8px 16px;font-size:13px">結束</button>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+
+    <div id="feedback-bar" class="feedback-bar hidden" style="margin-top:16px"></div>
+
+    <div class="question-card">
+      <span class="chapter-tag" id="q-chapter"></span>
+      <span class="question-number" id="q-number"></span>
+      <div class="question-text" id="q-text"></div>
+      <div class="options" id="q-options"></div>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="nav-btn" id="btn-prev" onclick="prevQuestion()">上一題</button>
+      <button class="nav-btn primary" id="btn-next" onclick="nextQuestion()">下一題</button>
+    </div>
+  </div>
+
+  <!-- 結果 -->
+  <div id="page-result" class="hidden">
+    <div class="header"><h1>練習結果</h1></div>
+    <div class="result-card">
+      <div class="result-score" id="result-score">0%</div>
+      <div class="result-detail" id="result-detail"></div>
+      <div class="result-bar"><div class="result-bar-fill" id="result-bar-fill"></div></div>
+      <div class="result-stats">
+        <div class="stat-item"><div class="stat-value correct-color" id="stat-correct">0</div><div class="stat-label">答對</div></div>
+        <div class="stat-item"><div class="stat-value wrong-color" id="stat-wrong">0</div><div class="stat-label">答錯</div></div>
+        <div class="stat-item"><div class="stat-value" id="stat-unanswered" style="color:var(--text-light)">0</div><div class="stat-label">未作答</div></div>
+      </div>
+      <button class="start-btn" onclick="showReview()" style="margin-bottom:12px;background:#6B8088">查看詳解</button>
+      <button class="start-btn" onclick="goHome()">回首頁</button>
+    </div>
+    <div class="review-section hidden" id="review-section"></div>
+  </div>
+
+</div>
+
+<script>
+// ==================== REFERENCE DATA ====================
+var referenceData = [
+  {
+    title: "第一章：科技管理導論",
+    sections: [
+      {
+        name: "科技管理定義與架構",
+        items: [
+          { q: "根據 Khalil (2000) 的觀點，科技管理的定義為何？", a: "科技管理是在工程與科學領域中規劃、發展與執行科技能力，以達成組織策略與營運目標。其核心在於透過整合科學、工程與管理知識來提升組織的競爭力。" },
+          { q: "美國國家研究委員會 (NRC) 如何定義科技管理？", a: "科技管理是一種連結工程、科學與管理等領域，以規劃、發展與執行科技能力，達成組織策略與營運目標的跨學科整合活動，並促進社會整體利益的實現。" },
+          { q: "林泰安 (2002) 提出的科技管理系統化管理包含哪三個層次？", a: "三個層次為：<strong>國家層次</strong>、<strong>產業層次</strong>、<strong>企業層次</strong>。" },
+          { q: "在企業活動層次中，科技管理依研究發展密切程度可劃分為哪三個階段？", a: "<strong>構想產生階段</strong>、<strong>技術商品化階段</strong>、<strong>事業化與產業化階段</strong>。" },
+          { q: "Kocaoglu (2002) 將科技管理分為哪些子系統？", a: "<strong>人力資源</strong>子系統、<strong>財務</strong>子系統、<strong>製造</strong>子系統、<strong>策略</strong>子系統、<strong>程序與工具及整合</strong>子系統。" },
+          { q: "科技管理具有什麼樣的學科特性？它連接了哪些領域？", a: "科技管理具有「<strong>跨領域</strong>」特性，連結了工程與科學、管理科學等多個領域，並涵蓋科技創新與技術商品化等議題。" },
+          { q: "科技管理複雜性主要源自於哪三大特性？", a: "<strong>動態性 (Dynamics)</strong>、<strong>不確定性 (Uncertainty)</strong> 及 <strong>複雜性 (Complexity)</strong>。" },
+          { q: "科技管理主要討論的兩大主軸為何？", a: "「<strong>策略</strong>」與「<strong>創新</strong>」。" },
+          { q: "科技管理的構面可以從哪四個層面來區分？", a: "<strong>企業面</strong>、<strong>技術面</strong>、<strong>知識面</strong>、<strong>人際與人文面</strong>。" }
+        ]
+      },
+      {
+        name: "科技類型與創新",
+        items: [
+          { q: "何謂「新興科技 (Emerging Technology)」？", a: "指尚未完全商品化的技術，但未來可能在某些產業或商品領域上產生重大影響的技術，且其潛在影響力的大小目前仍難以預測。" },
+          { q: "何謂「適當的技術 (Appropriate Technology)」？", a: "指不論國家、地區、社會條件差異，能針對當地資源與社會經濟環境提供最大效益的技術，以最適合當地條件的方式來實現。" },
+          { q: "請說明「有形科技」與「無形科技」的差別。", a: "<strong>有形科技</strong>可以用文字與數據具體表達，屬於顯性知識，容易傳播與學習；<strong>無形科技</strong>則是隱含在個人的經驗與技巧中，不易具體表達，需要長期累積。" },
+          { q: "根據 Porter 的解釋，創新的定義為何？", a: "創新是競爭優勢的核心，涵蓋各種技術改進與做事方法的改變。創新的本質在於打破現有的競爭態勢，其範圍涵蓋產品、製程與管理方法。" },
+          { q: "請區分「技術創新」與「經營創新」。", a: "<strong>技術創新</strong>著重產品面，以科學知識上的突破為基礎，改進產品的性能；<strong>經營創新</strong>則是在企業經營管理與策略上的創新。" },
+          { q: "請區分「產品創新」與「程序創新」。", a: "<strong>產品創新</strong>是透過推出新產品來滿足市場需求；<strong>程序創新</strong>則是透過改善生產或服務流程來提升效率，包括降低成本、提升品質、縮短交期等。" }
+        ]
+      },
+      {
+        name: "科技倫理與社會議題",
+        items: [
+          { q: "什麼是「網路治理」？其主要目的是什麼？", a: "網路治理是在網路環境中對網路秩序的治理與建構，涉及一種科學與規範的引導。其目的是透過規範引導使網路環境達到無法單靠自律能達到的境界。" },
+          { q: "在生物科技應用中，代理孕母引發的主要爭議有哪些？", a: "包括是否會讓人類的生殖成為商品化交易、是否涉及人體器官買賣與倫理爭議，以及可能衍生出新的社會議題。" },
+          { q: "何謂「基因技術」？", a: "基因技術是指發展基因科技後，人類能透過基因篩檢與基因複製等方式進行疾病預防或治療，但也衍生出隱私權與社會倫理等議題，涉及到新的社會責任與個人隱私權利。" },
+          { q: "科學活動的兩大基本倫理原則為何？", a: "<strong>客觀公正性</strong>（由認知客觀性拓展而來）以及<strong>公眾利益優先性</strong>（由知識公有性拓展而來）。" },
+          { q: "當代科技與倫理價值互動時常陷入什麼樣的兩難困境？", a: "一方面革命性技術可能帶來倫理恐慌；另一方面若禁止新科技，則可能喪失為人類帶來巨大福利的機遇。" }
+        ]
+      }
+    ]
+  },
+  {
+    title: "第二章：科技政策與國家競爭力",
+    sections: [
+      {
+        name: "科技與產業基礎概念",
+        items: [
+          { q: "科技 (Technology) 對人類的主要影響體現在哪些方面？", a: "科技影響範圍涵蓋各種<strong>制度研定</strong>、各型<strong>商品開發</strong>、各類<strong>工具器械製造</strong>等，是現代化活動的底層驅動力，也是人類近世紀以來受到最大影響的因素。" },
+          { q: "「產業」的定義應包括哪四個層面？", a: "（1）<strong>產品</strong>、（2）<strong>顧客類型</strong>、（3）<strong>地理區域</strong>、（4）<strong>生產階段</strong>。" },
+          { q: "以 IC 產業為例，說明產業在生產界面的分工方式。", a: "IC 產業可分為：<strong>IC 設計</strong>、<strong>IC 晶圓代工</strong>、<strong>IC 封裝</strong>及 <strong>IC 測試</strong>四個環節，各環節高度專業化分工，企業亦可藉由策略聯盟方式形成另一種產業合作模式。" },
+          { q: "科技政策制定對國家有哪些直接影響？", a: "科技政策制定深深影響國家的<strong>科技競爭力</strong>，並直接影響<strong>經濟發展</strong>、<strong>國家投資潛力</strong>與<strong>國民就業機會</strong>。" }
+        ]
+      },
+      {
+        name: "我國科技政策",
+        items: [
+          { q: "我國推動科技與產業技術發展分為哪三個層面？各層面由哪些機構負責？", a: "第一層（科技政策形成）：<strong>總統府、行政院、科技部（國科會）</strong>；第二層（產業技術政策推動）：<strong>經濟部技術處、工研院</strong>；第三層（主要產業技術推動）：<strong>各科技專案計畫</strong>（含政府、民間及新產品）。" },
+          { q: "我國政府的五大科技政策目標為何？", a: "<strong>強化知識創新體系</strong>、<strong>創造產業競爭優勢</strong>、<strong>增進全面生活品質</strong>、<strong>提升全民科技水準</strong>、<strong>強化自主國防科技</strong>。" },
+          { q: "我國 2016 年政黨輪替後提出的「5+2」產業創新計畫，包含哪些核心產業？", a: "五大產業：<strong>智慧機械、亞洲矽谷、綠能科技、生醫產業、國防航太</strong>；+2：<strong>新農業、循環經濟</strong>；另加入：數位國家創新經濟、文化科技。" }
+        ]
+      },
+      {
+        name: "各國科技政策",
+        items: [
+          { q: "美國科技政策的三大制定策略為何？", a: "（1）加強科技研發與經濟成長的聯繫，促進科技為經濟發展服務；（2）利用新科學技術提高政府效率，使政府服務更加便民；（3）保持美國在<strong>基礎科學、數學及工程技術</strong>的世界領先地位。" },
+          { q: "美國科技研發體系由哪四類機構組成？", a: "<strong>大學</strong>、<strong>產業界</strong>、<strong>非營利組織或基金會研發機構</strong>、<strong>政府設置之研發機構</strong>。" },
+          { q: "日本科技政策的三大重點研發領域為何？", a: "（1）<strong>奈米科技與生命科學技術</strong>；（2）<strong>資訊科學技術</strong>；（3）<strong>地球環境科學技術</strong>。" },
+          { q: "日本科技政策的三大目標為何？", a: "（1）建構一個具有新知識體系的國家；（2）藉由開創新型態產業，提升國際競爭力及增加就業機會；（3）建構一個能使國民安心、安全生活的高品質社會。" },
+          { q: "中國大陸早期研發經費佔 GDP 比例為何？與日本相比有何差距？", a: "中國大陸早期研發經費佔 GDP 約 <strong>0.6～0.7%</strong>，與先進國家相比偏低；研發人員每萬人中僅佔 7 人，約為日本的 <strong>1/15</strong>。" },
+          { q: "中國大陸「十三五」規劃（2016-2020 年）支持的六大新興產業為何？", a: "<strong>新一代信息技術</strong>、<strong>新能源汽車</strong>、<strong>生物技術</strong>、<strong>綠色低碳</strong>、<strong>永續裝置製造與科技</strong>、<strong>數字創意</strong>。" }
+        ]
+      },
+      {
+        name: "國家競爭力與策略規劃",
+        items: [
+          { q: "國家競爭力的主要評量指標有哪五項？", a: "（1）<strong>研究發展（R&D）經費</strong>；（2）<strong>研究發展（R&D）人力</strong>；（3）<strong>科技管理</strong>；（4）<strong>科學環境</strong>；（5）<strong>智慧財產權</strong>。" },
+          { q: "「策略思考」與「策略規劃」有何不同？", a: "<strong>策略思考</strong>是由上而下（Top-down），從組織高層開始，著重洞察與願景規劃；<strong>策略規劃</strong>是由下而上（Bottom-up），從基層人員開始，確實掌握策略議題所需的相關資訊，著重執行與細節。" },
+          { q: "知識經濟體的國家創新系統包含哪三大次系統？", a: "（1）<strong>技術系統</strong>（研究／發展／產品商品化）；（2）<strong>知識系統</strong>（產出／傳播／運用）；（3）<strong>產業系統</strong>（資源／市場）。" },
+          { q: "在知識經濟體中，創新的六項基本元件為何？", a: "（1）政策法制建立；（2）基礎設施建構；（3）產業環境配合；（4）知識能量充實；（5）人力資源應用；（6）資本市場（創投）。" },
+          { q: "波特 (M. Porter) 教授在評比各國創新能力時，主要關注哪三個面向？", a: "（1）<strong>共通性之創新基礎建設</strong>；（2）<strong>創新產業集群（Clusters）的形成</strong>；（3）上述兩者的<strong>有效連結</strong>。" },
+          { q: "短期前瞻策略規劃（1 至 3 年）的主要內容包括哪些？", a: "（1）推動國家前瞻計畫，形成科技政策智庫；（2）進行創新活動調查，建立創新指標與評比系統；（3）建立科學活動績效與影響之評估模式；（4）進行科技人才資源調查並建置資料；（5）制定科技資訊政策白皮書與公共資訊法。" },
+          { q: "中期前瞻策略規劃（3 至 6 年）的主要內容包括哪些？", a: "（1）推動形成創新聯盟與成長集群（Growth Cluster）；（2）建立技術移轉與擴散的機制；（3）建立科技風險投資支持系統；（4）進行科技人才資源整體規劃；（5）建立科技資訊服務體系。" }
+        ]
+      }
+    ]
+  },
+  {
+    title: "第三章：科技前瞻與變遷",
+    sections: [
+      {
+        name: "科技演化與變遷過程",
+        items: [
+          { q: "技術生命週期（Technology Life Cycle）通常包含哪四個階段？", a: "<strong>新興階段</strong>、<strong>初始成長階段</strong>、<strong>晚期成長階段</strong>及<strong>成熟階段</strong>。" },
+          { q: "科技前瞻（Technology Foresight）的定義為何？", a: "側重於科技變遷的預測活動，盡可能以文字或數字形式陳述，焦點在於敘述科技的演化或變革、具體的創新及執行，以及科技能具體應用實現的時間。" },
+          { q: "科技前瞻的運作主導方向包含哪兩個平行部分？", a: "<strong>專業之科學與技術</strong>，以及<strong>人類需求的變革</strong>。" }
+        ]
+      },
+      {
+        name: "各國科技前瞻案例",
+        items: [
+          { q: "英國推動數位經濟法案時，在建立完善法制方面有哪兩個共同目標？", a: "第一是帶動資通訊基礎建設的投資，提供友善創業環境；第二是在不侵害隱私權下，保障國民網路使用權，提供更快速的公共服務。" },
+          { q: "英國數位經濟法案中的五大重點項目為何？", a: "<strong>最佳化管理寬頻使用權</strong>、<strong>強化消費者權益保障</strong>、<strong>保護智慧財產權</strong>、<strong>強化政府資訊公開與公共服務</strong>、<strong>保障數位時代下之公民權益</strong>。" },
+          { q: "日本科學與技術協會主要使用哪種著名的預測方法來進行研究？", a: "<strong>德爾菲法（Delphi Method）</strong>。" },
+          { q: "韓國在科學與科技規劃活動流程中的預測程序包含哪三個階段？", a: "<strong>開始階段</strong>、<strong>主要預測階段</strong>及<strong>承諾階段</strong>。" },
+          { q: "韓國主要預測階段（Main Foresight Stage）的四個重點為何？", a: "覆檢科學、技術相關要素的資訊、提出計畫、選擇研發計畫的替代技術。" },
+          { q: "韓國科學與科技規劃包含 11 大領域，請列舉其中 5 個。", a: "<strong>資訊與電子</strong>、<strong>機械與航太科技</strong>、<strong>生命科學（生物科技）</strong>、<strong>綠色能源與資源</strong>、<strong>人工智慧與智能製造</strong>（任選五個即可）。" }
+        ]
+      },
+      {
+        name: "科技前瞻模式與原則",
+        items: [
+          { q: "德爾菲法（Delphi Method）的使用前提為何？", a: "所有參與者都必須是該預測技術領域中的<strong>專家</strong>。" },
+          { q: "德爾菲法的主要特色與缺點分別為何？", a: "特色是可預測<strong>長期、較大範圍</strong>的科技發展；缺點是以現況預測未來，<strong>無法預測真正具革命性、突破性的創新</strong>。" },
+          { q: "前瞻預測方法的三大重點為何？", a: "<strong>創造力</strong>、<strong>專家意見</strong>、<strong>各因素之調整互動</strong>。" },
+          { q: "科技前瞻的預測方法可分為哪兩大類？", a: "<strong>探索式預測（Exploratory Forecasting）</strong>與<strong>規範式預測（Normative Forecasting）</strong>。" },
+          { q: "科學與科技政策制定架構的四大原則為何？", a: "<strong>監控與執行預測</strong>、<strong>選擇優先順序設定</strong>、<strong>充分溝通及協調</strong>、<strong>邁向一致性及承諾</strong>。" }
+        ]
+      },
+      {
+        name: "雲端運算與微軟方案",
+        items: [
+          { q: "微軟雲端強調的「混合雲」（Hybrid Cloud）結合了哪兩者的優勢？", a: "<strong>公有雲（Public Cloud）</strong>與<strong>私有雲（Private Cloud）</strong>。" },
+          { q: "微軟在雲端實踐上的「一三五方案」具體指什麼？", a: "<strong>一大策略</strong>、<strong>三大驅動力</strong>與<strong>五大應用情境</strong>。" },
+          { q: "微軟「一三五方案」中的「一大策略」內容為何？", a: "<strong>IT as a Service（IT 即服務）</strong>，強調企業 IT 部門應從系統佈署管理轉型為服務供應單位，提升服務品質與彈性。" },
+          { q: "微軟「一三五方案」中的「三大驅動力」為何？", a: "<strong>使用者自主化</strong>、<strong>IT 消費性化</strong>、<strong>IT 另類外包化</strong>。" },
+          { q: "微軟「一三五方案」中的「五大應用情境」包含哪些？", a: "<strong>資料庫雲（DB Cloud）</strong>、<strong>桌面雲（Desktop Cloud）</strong>、<strong>應用程式雲（App Cloud）</strong>、<strong>運算雲（Compute Cloud）</strong>、<strong>雲端辦公室（OA Cloud）</strong>。" },
+          { q: "根據簡報，前瞻預測的核心導向為何？", a: "非以研究者本身的考量為導向，而是以<strong>使用者為導向</strong>，並以<strong>人性化的考量</strong>為依歸。" }
+        ]
+      }
+    ]
+  }
+];
+
+// ==================== QUIZ DATA ====================
+var chapters = [
+  {
+    title: "第一章：科技管理導論",
+    questions: [
+      { q: "根據 Khalil (2000) 的觀點，科技管理的定義為何？", options: ["科技管理是在純粹科學的範疇內進行技術開發與應用","科技管理是在工程與科學領域中規劃、發展與執行科技能力，以達成組織策略與營運目標","科技管理僅限於資訊科技的管理與維護","科技管理是指政府對科技產業的監管與控制"], answer: 1 },
+      { q: "美國國家研究委員會 (NRC) 如何定義科技管理？", options: ["科技管理是一種純粹的技術研發活動","科技管理是一種連結工程、科學與管理等領域，以規劃、發展與執行科技能力，達成組織策略與營運目標的跨學科整合活動","科技管理是企業財務管理的延伸","科技管理僅涉及產品生產流程的優化"], answer: 1 },
+      { q: "林泰安 (2002) 提出的科技管理系統化管理包含哪三個層次？", options: ["計畫層次、執行層次、評估層次","個人層次、團隊層次、組織層次","國家層次、產業層次、企業層次","技術層次、管理層次、策略層次"], answer: 2 },
+      { q: "在企業活動層次中，科技管理依研究發展密切程度可劃分為哪三個階段？", options: ["前期研發階段、中期生產階段、後期銷售階段","構想產生階段、技術商品化階段、事業化與產業化階段","基礎研究階段、應用研究階段、實驗發展階段","規劃階段、實施階段、回饋階段"], answer: 1 },
+      { q: "Kocaoglu (2002) 將科技管理分為哪些子系統？", options: ["研發子系統、生產子系統、行銷子系統","科學與技術子系統、政策與社會子系統","人力資源子系統、財務子系統、製造子系統、策略子系統、程序與工具及整合子系統","輸入子系統、轉換子系統、輸出子系統"], answer: 2 },
+      { q: "科技管理具有什麼樣的學科特性？", options: ["科技管理是一門純理論的學科","科技管理具有「跨領域」特性，連結了工程與科學、管理科學等多個領域","科技管理僅屬於工程學門的分支","科技管理是社會科學的一個次領域，不涉及工程技術"], answer: 1 },
+      { q: "科技管理複雜性主要源自於哪三大特性？", options: ["成本性、效率性、公平性","動態性 (Dynamics)、不確定性 (Uncertainty) 及複雜性 (Complexity)","穩定性、可預測性、線性","技術性、經濟性、社會性"], answer: 1 },
+      { q: "科技管理主要討論的兩大主軸為何？", options: ["「成本」與「品質」","「策略」與「創新」","「研發」與「行銷」","「人力」與「財務」"], answer: 1 },
+      { q: "科技管理的構面可以從哪四個層面來區分？", options: ["計畫面、組織面、領導面、控制面","產業面、技術面、財務面、行銷面","企業面、技術面、知識面、人際與人文面","研究面、開發面、生產面、銷售面"], answer: 2 },
+      { q: "何謂「新興科技 (Emerging Technology)」？", options: ["已經被市場廣泛採用且成熟穩定的技術","指尚未完全商品化的技術，但未來可能在某些產業或商品領域上產生重大影響","指政府指定的優先發展科技項目","指被淘汰但仍有歷史價值的舊技術"], answer: 1 },
+      { q: "何謂「適當的技術 (Appropriate Technology)」？", options: ["指最先進、最昂貴的高科技技術","指能針對當地資源與社會經濟環境提供最大效益的技術","指只適用於已開發國家的頂尖技術","指由聯合國統一規範的標準化技術"], answer: 1 },
+      { q: "關於「有形科技」與「無形科技」的差別，下列何者正確？", options: ["有形科技是指軟體，無形科技是指硬體","有形科技可以用文字與數據具體表達，屬於顯性知識；無形科技則隱含在個人經驗與技巧中，不易具體表達","有形科技與無形科技沒有本質上的差異","有形科技指實體產品，無形科技指服務業"], answer: 1 },
+      { q: "根據 Porter 的解釋，創新的定義為何？", options: ["創新就是發明新產品","創新是競爭優勢的核心，涵蓋各種技術改進與做事方法的改變，本質在於打破現有競爭態勢","創新僅限於高科技產業的技術突破","創新是指模仿競爭對手的成功做法"], answer: 1 },
+      { q: "關於「技術創新」與「經營創新」的區分，下列何者正確？", options: ["技術創新與經營創新完全相同","技術創新著重產品面，以科學知識突破為基礎；經營創新則在企業經營管理與策略上創新","經營創新比技術創新更需要研發投入","技術創新只發生在製造業，經營創新只發生在服務業"], answer: 1 },
+      { q: "關於「產品創新」與「程序創新」的區分，下列何者正確？", options: ["產品創新就是改變產品包裝","產品創新是推出新產品滿足市場需求；程序創新是改善生產或服務流程來提升效率","程序創新的重要性遠低於產品創新","兩者沒有明確的差異"], answer: 1 },
+      { q: "關於「網路治理」，下列敘述何者正確？", options: ["網路治理是指網路技術的硬體維修","網路治理是在網路環境中對網路秩序的治理與建構，透過規範引導使網路環境達到更好的境界","網路治理僅限於防毒軟體的安裝","網路治理是指政府完全控制網路內容"], answer: 1 },
+      { q: "在生物科技應用中，代理孕母引發的主要爭議包括下列何者？", options: ["僅涉及技術可行性問題","包括人類生殖商品化交易、人體器官買賣倫理爭議，以及可能衍生新社會議題","僅涉及法律層面的問題","不存在任何爭議"], answer: 1 },
+      { q: "何謂「基因技術」？", options: ["基因技術是指用化學藥物治療疾病的方法","基因技術是透過基因篩檢與基因複製等方式進行疾病預防或治療，但也衍生隱私權與社會倫理議題","基因技術僅限於農業品種改良","基因技術是一種完全沒有倫理爭議的醫療技術"], answer: 1 },
+      { q: "科學活動的兩大基本倫理原則為何？", options: ["效率優先性與利潤最大化","客觀公正性（由認知客觀性拓展而來）以及公眾利益優先性（由知識公有性拓展而來）","保密性與競爭性","創新性與實用性"], answer: 1 },
+      { q: "當代科技與倫理價值互動時常陷入什麼樣的兩難困境？", options: ["技術發展速度太慢的困境","一方面革命性技術可能帶來倫理恐慌；另一方面若禁止新科技，則可能喪失巨大福利的機遇","科技發展不會產生任何倫理困境","倫理規範會自動適應科技發展"], answer: 1 }
+    ]
+  },
+  {
+    title: "第二章：科技政策與國家競爭力",
+    questions: [
+      { q: "科技 (Technology) 對人類的主要影響體現在哪些方面？", options: ["僅影響日常生活中的娛樂活動","涵蓋各種制度研定、各型商品開發、各類工具器械製造等，是現代化活動的底層驅動力","僅限於通訊與交通領域的進步","只影響已開發國家的經濟發展"], answer: 1 },
+      { q: "「產業」的定義應包括哪四個層面？", options: ["資金、人才、設備、土地","產品、顧客類型、地理區域、生產階段","研發、生產、銷售、服務","政府、企業、學校、民間"], answer: 1 },
+      { q: "以 IC 產業為例，產業在生產界面的分工方式為何？", options: ["IC 設計、IC 組裝、IC 銷售、IC 回收","IC 設計、IC 晶圓代工、IC 封裝、IC 測試","IC 研發、IC 生產、IC 行銷、IC 物流","IC 材料、IC 模具、IC 印刷、IC 焊接"], answer: 1 },
+      { q: "科技政策制定對國家有哪些直接影響？", options: ["僅影響國防安全","深深影響國家的科技競爭力，並直接影響經濟發展、國家投資潛力與國民就業機會","僅影響教育政策的方向","對經濟發展沒有直接關聯"], answer: 1 },
+      { q: "我國推動科技與產業技術發展的第一層（科技政策形成）由哪些機構負責？", options: ["經濟部技術處、工研院","總統府、行政院、科技部（國科會）","各科技專案計畫","教育部、衛福部、環保署"], answer: 1 },
+      { q: "我國政府的五大科技政策目標，下列何者「不」包含在內？", options: ["強化知識創新體系","創造產業競爭優勢","發展太空殖民計畫","提升全民科技水準"], answer: 2 },
+      { q: "我國 2016 年「5+2」產業創新計畫中的「5」大產業，下列何者正確？", options: ["半導體、面板、石化、鋼鐵、紡織","智慧機械、亞洲矽谷、綠能科技、生醫產業、國防航太","人工智慧、區塊鏈、物聯網、大數據、雲端運算","電子商務、金融科技、數位行銷、智慧物流、網路安全"], answer: 1 },
+      { q: "美國科技政策的三大制定策略，下列何者「不」包含在內？", options: ["加強科技研發與經濟成長的聯繫","利用新科學技術提高政府效率","將所有研發工作國有化","保持美國在基礎科學、數學及工程技術的世界領先地位"], answer: 2 },
+      { q: "美國科技研發體系由哪四類機構組成？", options: ["軍方、情報機構、國防承包商、太空總署","大學、產業界、非營利組織或基金會研發機構、政府設置之研發機構","聯邦政府、州政府、地方政府、民間企業","小學、中學、大學、研究所"], answer: 1 },
+      { q: "日本科技政策的三大重點研發領域，下列何者正確？", options: ["汽車工業、動漫產業、觀光服務","奈米科技與生命科學技術、資訊科學技術、地球環境科學技術","半導體技術、機器人技術、核能技術","造船工業、鋼鐵製造、電子零組件"], answer: 1 },
+      { q: "下列何者為日本科技政策的三大目標之一？", options: ["成為全球最大軍事強國","建構一個具有新知識體系的國家","完全取代美國的科技領導地位","將所有產業轉型為服務業"], answer: 1 },
+      { q: "關於中國大陸早期研發經費佔 GDP 比例，下列敘述何者正確？", options: ["高達 3%，領先全球","約 0.6～0.7%，與先進國家相比偏低；研發人員每萬人中僅佔 7 人，約為日本的 1/15","約 5%，超越美國","約 2%，與日本持平"], answer: 1 },
+      { q: "中國大陸「十三五」規劃支持的六大新興產業，下列何者「不」包含在內？", options: ["新一代信息技術","新能源汽車","傳統煤炭開採","生物技術"], answer: 2 },
+      { q: "國家競爭力的主要評量指標有哪五項？", options: ["GDP、人口數、國土面積、軍事支出、外匯存底","R&D 經費、R&D 人力、科技管理、科學環境、智慧財產權","教育程度、犯罪率、人均所得、平均壽命、失業率","進出口額、外資投入、觀光收入、農業產值、製造業產值"], answer: 1 },
+      { q: "關於「策略思考」與「策略規劃」的差異，下列何者正確？", options: ["兩者完全相同，只是名稱不同","策略思考是由上而下 (Top-down)，著重洞察與願景；策略規劃是由下而上 (Bottom-up)，著重執行與細節","策略思考是由下而上，策略規劃是由上而下","策略思考只適用於小企業，策略規劃只適用於大企業"], answer: 1 },
+      { q: "知識經濟體的國家創新系統包含哪三大次系統？", options: ["立法系統、司法系統、行政系統","技術系統（研究／發展／產品商品化）、知識系統（產出／傳播／運用）、產業系統（資源／市場）","教育系統、醫療系統、交通系統","金融系統、保險系統、證券系統"], answer: 1 },
+      { q: "在知識經濟體中，創新的六項基本元件，下列何者「不」包含在內？", options: ["政策法制建立","基礎設施建構","軍事武器研發","人力資源應用"], answer: 2 },
+      { q: "波特 (M. Porter) 教授在評比各國創新能力時，主要關注哪三個面向？", options: ["人口規模、國土面積、自然資源","共通性之創新基礎建設、創新產業集群 (Clusters) 的形成、兩者的有效連結","GDP 成長率、失業率、通貨膨脹率","教育水準、醫療品質、環境保護"], answer: 1 },
+      { q: "短期前瞻策略規劃（1 至 3 年）的主要內容，下列何者「不」包含？", options: ["推動國家前瞻計畫，形成科技政策智庫","進行創新活動調查，建立創新指標與評比系統","建立技術移轉與擴散的機制","建立科學活動績效與影響之評估模式"], answer: 2, note: "建立技術移轉與擴散的機制屬於「中期」前瞻策略規劃（3 至 6 年）。" },
+      { q: "中期前瞻策略規劃（3 至 6 年）的主要內容，下列何者「不」包含？", options: ["推動形成創新聯盟與成長集群 (Growth Cluster)","建立技術移轉與擴散的機制","推動國家前瞻計畫，形成科技政策智庫","建立科技風險投資支持系統"], answer: 2, note: "推動國家前瞻計畫屬於「短期」前瞻策略規劃（1 至 3 年）。" }
+    ]
+  },
+  {
+    title: "第三章：科技前瞻與變遷",
+    questions: [
+      { q: "技術生命週期 (Technology Life Cycle) 通常包含哪四個階段？", options: ["研發階段、測試階段、量產階段、退場階段","新興階段、初始成長階段、晚期成長階段、成熟階段","概念階段、設計階段、製造階段、銷售階段","導入階段、擴張階段、穩定階段、衰退階段"], answer: 1 },
+      { q: "科技前瞻 (Technology Foresight) 的定義，下列何者最正確？", options: ["僅是對科技市場價格的預測","側重於科技變遷的預測活動，以文字或數字形式陳述科技演化、創新及應用實現的時間","是對社會文化變遷的預測，與科技無關","僅限於對未來五年內的技術發展做出精確數字預測"], answer: 1 },
+      { q: "科技前瞻的運作主導方向包含哪兩個平行部分？", options: ["政府政策與民間投資","專業之科學與技術，以及人類需求的變革","國內市場與國際市場","基礎研究與應用研究"], answer: 1 },
+      { q: "英國推動數位經濟法案在建立完善法制方面的兩個共同目標為何？", options: ["限制網路使用與提高稅收","帶動資通訊基礎建設投資並提供友善創業環境；在不侵害隱私權下保障國民網路使用權","發展軍事科技與強化國防","推動太空計畫與深海探勘"], answer: 1 },
+      { q: "英國數位經濟法案中的五大重點項目，下列何者「不」包含？", options: ["最佳化管理寬頻使用權","強化消費者權益保障","發展核能發電技術","保護智慧財產權"], answer: 2 },
+      { q: "日本科學與技術協會主要使用哪種預測方法來進行研究？", options: ["情境分析法 (Scenario Analysis)","德爾菲法 (Delphi Method)","趨勢外推法 (Trend Extrapolation)","交叉影響分析法 (Cross-Impact Analysis)"], answer: 1 },
+      { q: "韓國在科學與科技規劃活動流程中的預測程序包含哪三個階段？", options: ["規劃階段、執行階段、評估階段","開始階段、主要預測階段、承諾階段","調查階段、分析階段、報告階段","設計階段、實施階段、回饋階段"], answer: 1 },
+      { q: "韓國主要預測階段 (Main Foresight Stage) 的四個重點，下列何者「不」包含？", options: ["覆檢科學、技術相關要素的資訊","提出計畫","進行市場行銷推廣","選擇研發計畫的替代技術"], answer: 2 },
+      { q: "韓國科學與科技規劃包含 11 大領域，下列何者屬於其中？", options: ["傳統手工藝與民俗技藝","資訊與電子、機械與航太科技、生命科學（生物科技）","觀光旅遊與餐飲服務","房地產開發與建築設計"], answer: 1 },
+      { q: "德爾菲法 (Delphi Method) 的使用前提為何？", options: ["所有參與者必須是一般民眾","所有參與者都必須是該預測技術領域中的專家","參與者人數必須超過一萬人","僅需一位專家即可進行"], answer: 1 },
+      { q: "關於德爾菲法的特色與缺點，下列敘述何者正確？", options: ["特色是能精準預測短期市場波動；缺點是成本太高","特色是可預測長期、較大範圍的科技發展；缺點是以現況預測未來，無法預測真正具革命性的創新","特色是速度快且成本低；缺點是只能預測一年內的變化","特色是完全客觀；缺點是需要大量資金"], answer: 1 },
+      { q: "前瞻預測方法的三大重點為何？", options: ["成本、效率、速度","創造力、專家意見、各因素之調整互動","市場調查、財務分析、風險評估","數據蒐集、統計分析、報告撰寫"], answer: 1 },
+      { q: "科技前瞻的預測方法可分為哪兩大類？", options: ["定性預測與定量預測","探索式預測 (Exploratory Forecasting) 與規範式預測 (Normative Forecasting)","短期預測與長期預測","國內預測與國際預測"], answer: 1 },
+      { q: "科學與科技政策制定架構的四大原則為何？", options: ["預算編列、人事安排、設備採購、場地規劃","監控與執行預測、選擇優先順序設定、充分溝通及協調、邁向一致性及承諾","研究、發展、推廣、評鑑","計畫、執行、查核、行動"], answer: 1 },
+      { q: "微軟雲端強調的「混合雲」(Hybrid Cloud) 結合了哪兩者的優勢？", options: ["區域雲與全球雲","公有雲 (Public Cloud) 與私有雲 (Private Cloud)","個人雲與企業雲","國內雲與國際雲"], answer: 1 },
+      { q: "微軟在雲端實踐上的「一三五方案」具體指什麼？", options: ["一個部門、三個團隊、五個產品","一大策略、三大驅動力、五大應用情境","一年計畫、三年目標、五年願景","一項專利、三個市場、五個客戶"], answer: 1 },
+      { q: "微軟「一三五方案」中的「一大策略」為何？", options: ["IT as a Product（IT 即產品）","IT as a Service（IT 即服務），強調企業 IT 部門應從系統佈署管理轉型為服務供應單位","IT as a Cost（IT 即成本）","IT as a Risk（IT 即風險）"], answer: 1 },
+      { q: "微軟「一三五方案」中的「三大驅動力」為何？", options: ["成本降低、效率提升、風險控管","使用者自主化、IT 消費性化、IT 另類外包化","硬體升級、軟體更新、網路擴充","人才培訓、組織變革、流程優化"], answer: 1 },
+      { q: "微軟「一三五方案」中的「五大應用情境」，下列何者「不」包含？", options: ["資料庫雲 (DB Cloud)","桌面雲 (Desktop Cloud)","社群雲 (Social Cloud)","運算雲 (Compute Cloud)"], answer: 2, note: "五大應用情境為：資料庫雲、桌面雲、應用程式雲 (App Cloud)、運算雲、雲端辦公室 (OA Cloud)。" },
+      { q: "根據簡報，前瞻預測的核心導向為何？", options: ["以研究者本身的學術興趣為導向","以使用者為導向，並以人性化的考量為依歸","以政府政策為唯一導向","以企業利潤最大化為導向"], answer: 1 }
+    ]
+  }
+];
+
+// ==================== STATE ====================
+var quizMode = "random";
+var questions = [];
+var currentIndex = 0;
+var userAnswers = {};
+var answered = {};
+var refChapter = 0;
+var refSearchTerm = "";
+
+// ==================== TABS ====================
+function switchTab(tab) {
+  document.getElementById("tab-quiz").classList.toggle("active", tab === "quiz");
+  document.getElementById("tab-ref").classList.toggle("active", tab === "ref");
+  document.getElementById("section-quiz").classList.toggle("hidden", tab !== "quiz");
+  document.getElementById("section-ref").classList.toggle("hidden", tab !== "ref");
+  if (tab === "ref") renderReference();
+}
+
+// ==================== MODE SELECTION ====================
+function selectMode(mode) {
+  quizMode = mode;
+  document.querySelectorAll(".mode-card").forEach(function(c) { c.classList.remove("active"); });
+  document.querySelector('[data-mode="' + mode + '"]').classList.add("active");
+}
+
+// ==================== QUIZ ====================
+function startQuiz() {
+  var pool = [];
+  if (quizMode === "random") {
+    chapters.forEach(function(ch, ci) {
+      ch.questions.forEach(function(q, qi) { pool.push(Object.assign({}, q, {chapterIdx: ci})); });
+    });
+    shuffleArr(pool);
+    questions = pool.slice(0, 25);
+  } else if (quizMode === "all") {
+    chapters.forEach(function(ch, ci) {
+      ch.questions.forEach(function(q, qi) { pool.push(Object.assign({}, q, {chapterIdx: ci})); });
+    });
+    questions = pool;
+  } else {
+    var ci = parseInt(quizMode.replace("ch", ""));
+    chapters[ci].questions.forEach(function(q) { pool.push(Object.assign({}, q, {chapterIdx: ci})); });
+    questions = pool;
+  }
+  currentIndex = 0; userAnswers = {}; answered = {};
+  var titles = {random:"隨機 25 題", all:"全部 60 題", ch0:"第一章", ch1:"第二章", ch2:"第三章"};
+  document.getElementById("quiz-title").textContent = titles[quizMode];
+  document.getElementById("quiz-total").textContent = questions.length;
+  showPage("quiz");
+  renderQuestion();
+}
+
+function shuffleArr(arr) {
+  for (var i = arr.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+  }
+}
+
+function renderQuestion() {
+  var q = questions[currentIndex];
+  document.getElementById("q-chapter").textContent = chapters[q.chapterIdx].title;
+  document.getElementById("q-number").textContent = "第 " + (currentIndex + 1) + " 題";
+  document.getElementById("q-text").textContent = q.q;
+  document.getElementById("quiz-current").textContent = currentIndex + 1;
+
+  var correct = 0;
+  var keys = Object.keys(userAnswers);
+  for (var i = 0; i < keys.length; i++) {
+    var qi = parseInt(keys[i]);
+    if (questions[qi] && userAnswers[qi] === questions[qi].answer) correct++;
+  }
+  document.getElementById("quiz-correct").textContent = correct;
+  document.getElementById("progress-fill").style.width = ((currentIndex + 1) / questions.length * 100) + "%";
+
+  var labels = ["A", "B", "C", "D"];
+  var isAns = answered[currentIndex];
+  var userAns = userAnswers[currentIndex];
+
+  var optHtml = "";
+  q.options.forEach(function(opt, oi) {
+    var cls = "option-btn";
+    if (isAns) {
+      cls += " disabled";
+      if (oi === q.answer) cls += " correct-answer";
+      else if (oi === userAns && userAns !== q.answer) cls += " wrong-answer";
+    }
+    optHtml += '<button class="' + cls + '" onclick="selectAnswer(' + oi + ')">' +
+      '<span class="opt-label">' + labels[oi] + '</span><span>' + opt + '</span></button>';
+  });
+  document.getElementById("q-options").innerHTML = optHtml;
+
+  var fb = document.getElementById("feedback-bar");
+  if (isAns) {
+    fb.classList.remove("hidden");
+    if (userAns === q.answer) {
+      fb.className = "feedback-bar correct";
+      fb.textContent = "✓ 答對了！";
+    } else {
+      fb.className = "feedback-bar wrong";
+      fb.innerHTML = "✗ 答錯了，正確答案是 (" + labels[q.answer] + ")" +
+        (q.note ? "<span style='display:block;font-size:13px;font-weight:400;margin-top:4px'>" + q.note + "</span>" : "");
+    }
+  } else {
+    fb.classList.add("hidden");
+  }
+
+  document.getElementById("btn-prev").style.visibility = currentIndex > 0 ? "visible" : "hidden";
+  document.getElementById("btn-next").textContent = currentIndex === questions.length - 1 ? "查看結果" : "下一題";
+}
+
+function selectAnswer(optIdx) {
+  if (answered[currentIndex]) return;
+  userAnswers[currentIndex] = optIdx;
+  answered[currentIndex] = true;
+  renderQuestion();
+}
+
+function nextQuestion() {
+  if (currentIndex < questions.length - 1) { currentIndex++; renderQuestion(); window.scrollTo(0, 0); }
+  else { endQuiz(); }
+}
+
+function prevQuestion() {
+  if (currentIndex > 0) { currentIndex--; renderQuestion(); window.scrollTo(0, 0); }
+}
+
+function endQuiz() {
+  var correct = 0, wrong = 0, unanswered = 0;
+  for (var i = 0; i < questions.length; i++) {
+    if (!(i in userAnswers)) unanswered++;
+    else if (userAnswers[i] === questions[i].answer) correct++;
+    else wrong++;
+  }
+  var ac = correct + wrong;
+  var pct = ac > 0 ? Math.round((correct / ac) * 100) : 0;
+  document.getElementById("result-score").textContent = pct + "%";
+  document.getElementById("result-detail").textContent = "共 " + questions.length + " 題，已作答 " + ac + " 題";
+  document.getElementById("stat-correct").textContent = correct;
+  document.getElementById("stat-wrong").textContent = wrong;
+  document.getElementById("stat-unanswered").textContent = unanswered;
+  setTimeout(function() { document.getElementById("result-bar-fill").style.width = pct + "%"; }, 100);
+  saveHistory(pct, correct, wrong, unanswered);
+  showPage("result");
+  window.scrollTo(0, 0);
+}
+
+function showReview() {
+  var section = document.getElementById("review-section");
+  if (section.classList.contains("hidden")) { section.classList.remove("hidden"); }
+  else { section.classList.add("hidden"); return; }
+  if (section.innerHTML) return;
+  var labels = ["A", "B", "C", "D"];
+  for (var i = 0; i < questions.length; i++) {
+    var q = questions[i];
+    var userAns = userAnswers[i];
+    var isCorrect = (i in userAnswers) && userAns === q.answer;
+    var div = document.createElement("div");
+    var cls = (i in userAnswers) ? (isCorrect ? "was-correct" : "was-wrong") : "";
+    div.className = "review-item " + cls;
+    var ansText = "(" + labels[q.answer] + ") " + q.options[q.answer];
+    var userText = "";
+    if (i in userAnswers) {
+      if (!isCorrect) userText = " ← 你選了：(" + labels[userAns] + ") " + q.options[userAns];
+    } else { userText = " ← 未作答"; }
+    div.innerHTML = '<div class="review-q-text">' + (i + 1) + ". " + q.q + "</div>" +
+      '<div class="review-answer ans-correct">正確答案：' + ansText + userText + "</div>" +
+      (q.note ? '<div class="review-note">' + q.note + "</div>" : "");
+    section.appendChild(div);
+  }
+}
+
+function showPage(page) {
+  document.getElementById("page-home").classList.toggle("hidden", page !== "home");
+  document.getElementById("page-quiz").classList.toggle("hidden", page !== "quiz");
+  document.getElementById("page-result").classList.toggle("hidden", page !== "result");
+}
+
+function goHome() {
+  document.getElementById("review-section").innerHTML = "";
+  document.getElementById("review-section").classList.add("hidden");
+  document.getElementById("result-bar-fill").style.width = "0%";
+  showPage("home");
+  loadHistory();
+}
+
+// ==================== HISTORY ====================
+function saveHistory(pct, correct, wrong, unanswered) {
+  var modeNames = {random:"隨機25題", all:"全部60題", ch0:"第一章", ch1:"第二章", ch2:"第三章"};
+  var history = JSON.parse(localStorage.getItem("mgmtQuizHistory") || "[]");
+  history.unshift({
+    mode: modeNames[quizMode], score: pct, correct: correct, wrong: wrong,
+    unanswered: unanswered, total: questions.length, date: new Date().toLocaleString("zh-TW")
+  });
+  if (history.length > 50) history.pop();
+  localStorage.setItem("mgmtQuizHistory", JSON.stringify(history));
+}
+
+function loadHistory() {
+  var history = JSON.parse(localStorage.getItem("mgmtQuizHistory") || "[]");
+  var section = document.getElementById("history-section");
+  var list = document.getElementById("history-list");
+  if (history.length === 0) { section.classList.add("hidden"); return; }
+  section.classList.remove("hidden"); list.innerHTML = "";
+  var show = history.slice(0, 10);
+  for (var i = 0; i < show.length; i++) {
+    var h = show[i];
+    var div = document.createElement("div");
+    div.className = "history-item";
+    var color = h.score >= 60 ? "var(--success)" : "var(--danger)";
+    div.innerHTML = "<div><div>" + h.mode + "</div><div style='font-size:12px;color:var(--text-light)'>" +
+      h.date + " | " + h.correct + "對 " + h.wrong + "錯</div></div>" +
+      "<div class='history-score' style='color:" + color + "'>" + h.score + "%</div>";
+    list.appendChild(div);
+  }
+}
+
+// ==================== REFERENCE ====================
+function renderReference() {
+  var data = referenceData;
+  var search = refSearchTerm;
+
+  var tabsHtml = "";
+  data.forEach(function(ch, i) {
+    var short = ch.title.split("：")[0];
+    tabsHtml += '<button class="ref-ch-btn ' + (refChapter === i ? "active" : "") + '" onclick="setRefChapter(' + i + ')">' + short + "</button>";
+  });
+  tabsHtml += '<button class="ref-ch-btn ' + (refChapter === -1 ? "active" : "") + '" onclick="setRefChapter(-1)">全部</button>';
+  document.getElementById("ref-tabs").innerHTML = tabsHtml;
+
+  var chaptersToShow = refChapter === -1 ? data : [data[refChapter]];
+  var contentHtml = "";
+  var hasResults = false;
+
+  chaptersToShow.forEach(function(ch) {
+    var chHtml = '<h3 style="color:var(--primary-dark);margin:20px 0 12px;font-size:16px">' + ch.title + "</h3>";
+    var chHasContent = false;
+
+    ch.sections.forEach(function(sec) {
+      var items = sec.items;
+      if (search) {
+        items = sec.items.filter(function(item) {
+          return item.q.toLowerCase().includes(search) ||
+            item.a.toLowerCase().replace(/<[^>]*>/g, "").includes(search);
+        });
+      }
+      if (items.length === 0) return;
+      chHasContent = true; hasResults = true;
+      items.forEach(function(item) {
+        chHtml += '<div class="ref-item"><div class="ref-q">' + item.q + '</div><div class="ref-a"><strong>答案：</strong>' + item.a + "</div></div>";
+      });
+    });
+
+    if (chHasContent) contentHtml += chHtml;
+  });
+
+  if (!hasResults) contentHtml = '<div class="no-results">找不到符合的題目，請嘗試其他關鍵字。</div>';
+  document.getElementById("ref-content").innerHTML = contentHtml;
+}
+
+function setRefChapter(idx) { refChapter = idx; renderReference(); }
+function onRefSearch(val) { refSearchTerm = val.trim().toLowerCase(); renderReference(); }
+function toggleSection(el) {
+  el.classList.toggle("open");
+  el.nextElementSibling.classList.toggle("show");
+}
+
+// ==================== KEYBOARD ====================
+document.addEventListener("keydown", function(e) {
+  if (document.getElementById("page-quiz").classList.contains("hidden")) return;
+  if (e.key === "ArrowRight" || e.key === "Enter") nextQuestion();
+  if (e.key === "ArrowLeft") prevQuestion();
+  if (["1","2","3","4"].includes(e.key)) selectAnswer(parseInt(e.key) - 1);
+  if (["a","b","c","d","A","B","C","D"].includes(e.key)) selectAnswer({a:0,b:1,c:2,d:3}[e.key.toLowerCase()]);
+});
+
+loadHistory();
+</script>
+</body>
+</html>

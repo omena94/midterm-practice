@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>科技與應用 是非題練習</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --primary: #8A9FA7;
+  --primary-dark: #6B8088;
+  --success: #7B9E80;
+  --danger: #AE7878;
+  --bg: #F0EBE3;
+  --card: #F8F5F1;
+  --text: #3A3530;
+  --text-light: #8A847E;
+  --border: #D8D1C9;
+  --radius: 12px;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+.container { max-width: 800px; margin: 0 auto; padding: 20px; }
+
+.header { text-align: center; padding: 30px 20px 20px; }
+.header h1 { font-size: 28px; font-weight: 700; color: var(--primary-dark); margin-bottom: 8px; }
+.header p { color: var(--text-light); font-size: 15px; }
+.back-link {
+  display: inline-block; margin-bottom: 12px;
+  color: var(--primary-dark); text-decoration: none; font-size: 14px; font-weight: 600;
+  padding: 6px 14px; background: #EAE5DF; border-radius: 8px; transition: background 0.2s;
+}
+.back-link:hover { background: #D8D1C9; text-decoration: none; }
+
+.mode-group { display: flex; gap: 12px; margin-bottom: 24px; }
+
+.mode-card {
+  flex: 1; padding: 24px 16px; border: 2px solid var(--border); border-radius: var(--radius);
+  background: var(--card); cursor: pointer; text-align: center; transition: all 0.2s;
+}
+.mode-card:hover { border-color: var(--primary); }
+.mode-card.active { border-color: var(--primary); background: #e0f2fe; }
+.mode-card h3 { font-size: 18px; margin-bottom: 6px; }
+.mode-card p { font-size: 13px; color: var(--text-light); }
+
+.start-btn {
+  display: block; width: 100%; padding: 16px; margin-top: 20px; border: none;
+  border-radius: var(--radius); background: var(--primary); color: white;
+  font-size: 18px; font-weight: 600; cursor: pointer; transition: background 0.2s;
+}
+.start-btn:hover { background: var(--primary-dark); }
+.start-btn:disabled { background: #cbd5e1; cursor: not-allowed; }
+
+.quiz-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 20px; background: var(--card); border-radius: var(--radius);
+  margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.quiz-info { font-size: 14px; color: var(--text-light); }
+.quiz-info strong { color: var(--text); }
+
+.progress-bar { width: 100%; height: 6px; background: var(--border); border-radius: 3px; margin-top: 10px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--primary); border-radius: 3px; transition: width 0.3s; }
+
+.question-card {
+  background: var(--card); border-radius: var(--radius); padding: 28px;
+  margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.chapter-tag {
+  display: inline-block; background: #DCE5E9; color: var(--primary-dark);
+  font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px; margin-bottom: 14px;
+}
+
+.question-number {
+  display: inline-block; background: #EAE5DF; color: var(--text-light);
+  font-weight: 700; font-size: 13px; padding: 4px 12px; border-radius: 999px; margin-bottom: 16px; margin-left: 6px;
+}
+
+.question-text { font-size: 17px; font-weight: 500; line-height: 1.8; margin-bottom: 28px; }
+
+.tf-buttons { display: flex; gap: 16px; }
+
+.tf-btn {
+  flex: 1; padding: 18px; border: 3px solid var(--border); border-radius: var(--radius);
+  background: var(--card); cursor: pointer; font-size: 20px; font-weight: 700;
+  text-align: center; transition: all 0.2s; user-select: none;
+}
+.tf-btn:hover:not(.disabled) { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+.tf-btn.true-btn:hover:not(.disabled) { border-color: var(--success); background: #f0fdf4; color: var(--success); }
+.tf-btn.false-btn:hover:not(.disabled) { border-color: var(--danger); background: #fef2f2; color: var(--danger); }
+
+.tf-btn.correct { border-color: var(--success); background: #D8EBDA; color: var(--success); }
+.tf-btn.wrong { border-color: var(--danger); background: #ECDADA; color: var(--danger); }
+.tf-btn.disabled { cursor: default; opacity: 0.6; }
+.tf-btn.disabled.correct { opacity: 1; }
+.tf-btn.disabled.wrong { opacity: 1; }
+
+.feedback-bar {
+  display: flex; align-items: center; gap: 10px; padding: 14px 18px;
+  border-radius: var(--radius); font-weight: 600; font-size: 15px; margin-bottom: 16px;
+}
+.feedback-bar.correct { background: #E4EFE5; color: var(--success); }
+.feedback-bar.wrong { background: #F2E5E5; color: var(--danger); }
+
+.nav-buttons { display: flex; gap: 12px; }
+.nav-btn {
+  flex: 1; padding: 14px; border: 2px solid var(--border); border-radius: var(--radius);
+  background: var(--card); font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+}
+.nav-btn:hover { border-color: var(--primary); }
+.nav-btn.primary { background: var(--primary); border-color: var(--primary); color: white; }
+.nav-btn.primary:hover { background: var(--primary-dark); }
+
+.result-card {
+  background: var(--card); border-radius: var(--radius); padding: 40px 28px;
+  text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.result-score { font-size: 64px; font-weight: 800; color: var(--primary-dark); margin: 20px 0 8px; }
+.result-detail { color: var(--text-light); font-size: 16px; margin-bottom: 30px; }
+.result-stats { display: flex; justify-content: center; gap: 30px; margin-bottom: 30px; }
+.stat-item { text-align: center; }
+.stat-value { font-size: 28px; font-weight: 700; }
+.stat-value.correct-color { color: var(--success); }
+.stat-value.wrong-color { color: var(--danger); }
+.stat-label { font-size: 13px; color: var(--text-light); margin-top: 4px; }
+
+.result-bar { width: 100%; height: 12px; background: #ECDADA; border-radius: 6px; overflow: hidden; margin-bottom: 30px; }
+.result-bar-fill { height: 100%; background: var(--success); border-radius: 6px; transition: width 1s ease; }
+
+.review-section { margin-top: 24px; text-align: left; }
+.review-item {
+  background: var(--card); border: 2px solid var(--border); border-radius: var(--radius);
+  padding: 18px; margin-bottom: 10px;
+}
+.review-item.was-wrong { border-color: #fecaca; }
+.review-item.was-correct { border-color: #bbf7d0; }
+.review-q-text { font-size: 15px; line-height: 1.7; margin-bottom: 8px; }
+.review-answer { font-size: 14px; font-weight: 600; }
+.review-answer.ans-true { color: var(--success); }
+.review-answer.ans-false { color: var(--danger); }
+
+.history-section { margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border); }
+.history-section h2 { font-size: 16px; font-weight: 600; margin-bottom: 12px; }
+.history-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 16px; background: var(--card); border-radius: 8px;
+  margin-bottom: 8px; font-size: 14px; border: 1px solid var(--border);
+}
+.history-score { font-weight: 700; }
+
+.hidden { display: none !important; }
+
+.tab-bar { display: flex; gap: 8px; margin-bottom: 24px; }
+.tab-btn {
+  flex: 1; padding: 12px; border: 2px solid var(--border); border-radius: var(--radius);
+  background: var(--card); font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+}
+.tab-btn.active { background: var(--primary); border-color: var(--primary); color: white; }
+.tab-btn:not(.active):hover { border-color: var(--primary); }
+
+.notes-chapter {
+  background: var(--card); border-radius: var(--radius); margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06); overflow: hidden;
+}
+.notes-chapter-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 20px; cursor: pointer; user-select: none;
+  border-bottom: 2px solid transparent; transition: background 0.2s;
+}
+.notes-chapter-header:hover { background: #EAE5DF; }
+.notes-chapter-header.open { border-bottom-color: var(--border); }
+.notes-chapter-title { font-size: 16px; font-weight: 700; color: var(--primary-dark); }
+.notes-chapter-arrow { font-size: 13px; color: var(--text-light); transition: transform 0.2s; }
+.notes-chapter-header.open .notes-chapter-arrow { transform: rotate(180deg); }
+.notes-chapter-body { padding: 0 20px; max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s; }
+.notes-chapter-body.open { max-height: 2000px; padding: 16px 20px; }
+.notes-point {
+  display: flex; gap: 10px; padding: 10px 0;
+  border-bottom: 1px solid var(--border); line-height: 1.8; font-size: 15px;
+}
+.notes-point:last-child { border-bottom: none; }
+.notes-num { min-width: 24px; font-weight: 700; color: var(--primary); font-size: 14px; padding-top: 2px; }
+
+@media (max-width: 600px) {
+  .container { padding: 12px; }
+  .header { padding: 20px 12px 16px; }
+  .header h1 { font-size: 22px; }
+  .question-card { padding: 20px 16px; }
+  .question-text { font-size: 16px; }
+  .result-score { font-size: 48px; }
+  .mode-group { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Home -->
+  <div id="page-home">
+    <div class="header">
+      <a href="index.html" class="back-link">&#9664; 返回主頁</a>
+      <h1>科技與應用 是非題練習</h1>
+    </div>
+
+    <div class="tab-bar">
+      <button class="tab-btn active" id="tab-quiz" onclick="switchTab('quiz')">是非題練習</button>
+      <button class="tab-btn" id="tab-notes" onclick="switchTab('notes')">重點整理</button>
+    </div>
+
+    <!-- 是非題區塊 -->
+    <div id="section-quiz">
+      <p style="color:var(--text-light);font-size:14px;margin-bottom:16px;text-align:center">共 <span id="total-count"></span> 題</p>
+    <div class="mode-group">
+      <div class="mode-card active" data-mode="random" onclick="selectMode('random')">
+        <h3>隨機 25 題</h3>
+        <p>從題庫隨機抽取 25 題</p>
+      </div>
+      <div class="mode-card" data-mode="all" onclick="selectMode('all')">
+        <h3>全部作答</h3>
+        <p>依序作答所有題目</p>
+      </div>
+    </div>
+
+    <button class="start-btn" onclick="startQuiz()">開始練習</button>
+
+    <div class="history-section" id="history-section">
+      <h2>練習紀錄</h2>
+      <div id="history-list"></div>
+    </div>
+    </div><!-- end section-quiz -->
+
+    <!-- 重點整理區塊 -->
+    <div id="section-notes" class="hidden">
+      <div id="notes-list"></div>
+    </div>
+  </div>
+
+  <!-- Quiz -->
+  <div id="page-quiz" class="hidden">
+    <div class="quiz-header">
+      <div>
+        <div class="quiz-info"><strong id="quiz-title"></strong></div>
+        <div class="quiz-info">
+          第 <strong id="quiz-current">1</strong> / <strong id="quiz-total">25</strong> 題
+          <span style="margin-left:12px">正確: <strong id="quiz-correct" style="color:var(--success)">0</strong></span>
+        </div>
+      </div>
+      <button class="nav-btn" onclick="endQuiz()" style="flex:none;padding:8px 16px;font-size:13px">結束</button>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+
+    <div id="feedback-bar" class="feedback-bar hidden"></div>
+
+    <div class="question-card">
+      <span class="chapter-tag" id="q-chapter"></span>
+      <span class="question-number" id="q-number"></span>
+      <div class="question-text" id="q-text"></div>
+      <div class="tf-buttons">
+        <button class="tf-btn true-btn" id="btn-true" onclick="selectAnswer(true)">&#9675; 是</button>
+        <button class="tf-btn false-btn" id="btn-false" onclick="selectAnswer(false)">&#10005; 非</button>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="nav-btn" id="btn-prev" onclick="prevQuestion()">上一題</button>
+      <button class="nav-btn primary" id="btn-next" onclick="nextQuestion()">下一題</button>
+    </div>
+  </div>
+
+  <!-- Result -->
+  <div id="page-result" class="hidden">
+    <div class="header"><h1>練習結果</h1></div>
+    <div class="result-card">
+      <div class="result-score" id="result-score">0%</div>
+      <div class="result-detail" id="result-detail"></div>
+      <div class="result-bar"><div class="result-bar-fill" id="result-bar-fill"></div></div>
+      <div class="result-stats">
+        <div class="stat-item"><div class="stat-value correct-color" id="stat-correct">0</div><div class="stat-label">答對</div></div>
+        <div class="stat-item"><div class="stat-value wrong-color" id="stat-wrong">0</div><div class="stat-label">答錯</div></div>
+        <div class="stat-item"><div class="stat-value" id="stat-unanswered" style="color:var(--text-light)">0</div><div class="stat-label">未作答</div></div>
+      </div>
+      <button class="start-btn" onclick="showReview()" style="margin-bottom:12px;background:#475569">查看詳解</button>
+      <button class="start-btn" onclick="goHome()">回首頁</button>
+    </div>
+    <div class="review-section hidden" id="review-section"></div>
+  </div>
+</div>
+
+<script>
+var QUESTIONS = [{"chapter":"第二周 自然科學的探究理論","text":"哥白尼(1473-1544) 提出太陽中心學說\"天體運行論\"","answer":true},{"chapter":"第二周 自然科學的探究理論","text":"牛頓第二運動定律：當物體不受外力作用，或所受合力為零時，原先靜止者恆靜止，原先運動者恆沿著直線作等速度運動。","answer":false},{"chapter":"第二周 自然科學的探究理論","text":"哈維(William Harvey,1578-1657)發現人體血液循環。","answer":true},{"chapter":"第二周 自然科學的探究理論","text":"歸納法犯了以偏概全的邏輯錯誤。","answer":true},{"chapter":"第二周 自然科學的探究理論","text":"演繹法：從全體的共同特性去推論個別特性，演繹法又稱為三段論法(大前提、小前提及結論) 。","answer":true},{"chapter":"第二周 自然科學的探究理論","text":"歸納法，有葉綠體的植物皆會行光合作用，榕樹也有葉綠體，榕樹也會行光合作用。","answer":false},{"chapter":"第二周 自然科學的探究理論","text":"牛頓第三運動定律：當兩物體交互作用時，彼此互以力作用於對方，兩者大小相等，方向相反","answer":false},{"chapter":"第二周 自然科學的探究理論","text":"在股市中，羊群效應就是：當你發現自己的交易背離了市場的方向，必須立即止損，不得有任何延誤，不得存有任何僥倖。","answer":false},{"chapter":"第二周 自然科學的探究理論","text":"青蛙現象告訴我們，一些突變事件，容易引起人們的警覺，而易致人於死地的卻是在自我感覺良好的情況下，對實際情況的逐漸惡化，沒有清醒的察覺。","answer":true},{"chapter":"第二周 自然科學的探究理論","text":"木桶理論：組成木桶的木板如果長短不齊，那麼木桶的盛水量不是取決於最短的那一塊木板，而是取決於最長的那一塊木板！","answer":false},{"chapter":"第三周科技與生活概述作業練習","text":"汽車安全氣囊(SRS)又稱為Air-bag，屬於主動安全設備，必須繫有安全帶的前提下，才能產生最大的防護效果。","answer":false},{"chapter":"第三周科技與生活概述作業練習","text":"RFID中文稱為無線射頻辨識，是屬於接觸式自動識別技術其中的一種辨識系統。","answer":false},{"chapter":"第三周科技與生活概述作業練習","text":"ABS主要目的在於使行駛中之車輛在煞車過程中處於不受控制的狀態，而因輪胎鎖死而使車輛失去控制。","answer":false},{"chapter":"第三周科技與生活概述作業練習","text":"安全氣囊能保護幼童，體型小駕駛者及孕婦胎兒。","answer":false},{"chapter":"第三周科技與生活概述作業練習","text":"全球定位系統是由美國國防部發射的24顆衛星組成的全球地理位置定位、導航和授時系統。","answer":true},{"chapter":"第三周科技與生活概述作業練習","text":"全球定位系統由空間衛星系統、地面監控系統和用戶接收系統三大子系統構成。","answer":true},{"chapter":"第三周科技與生活概述作業練習","text":"汽車安全氣囊內的火藥， 疊氮化鈉，分子式NaN3，無色六角形晶體，易溶於水和液氨。不會發生火藥受潮失效，但還是須定期檢修！","answer":false},{"chapter":"第三周科技與生活概述作業練習","text":"安全氣曩是高強度的布曩，容量50-90公升，氣曩會在0.03秒以230-320公里/小時的速度瞬間充氣，作為與車體與乘客的緩衝，汽車安全氣曩充氣也會迅速排氣以免阻擋駕駛人視線或是影響救援工作","answer":true},{"chapter":"第三周科技與生活概述作業練習","text":"5G手機跟4G比，傳輸速率更高、網路容量更大，最新測試顯示，5G的網速峰值已達到每秒10G，而4G則每秒100M的速率，5G網速差不多是4G的100倍。","answer":true},{"chapter":"第三周科技與生活概述作業練習","text":"ABS是指「防鎖死煞車系統」，可防止煞車時車輪鎖死、失控打滑；路面溼滑時，更能改善車輛煞車動作，縮短煞車距離。也能減少輪胎因急煞鎖死，而產生的不當磨損，可有效延長輪胎壽命","answer":true},{"chapter":"第三周科技與生活概述作業練習","text":"App為application應用程式的所寫！","answer":true},{"chapter":"第三周科技與生活概述作業練習","text":"北斗衛星第三代導航系統空間段計畫由30顆衛星組成， 包括3顆靜止軌道衛星、24顆中地球軌道衛星、3顆傾斜同步軌道衛星。","answer":true},{"chapter":"第4週生物科技（上）","text":"環境品質的惡化、現代生活忙碌以致運動量減少、飲食習慣不佳、氣候異常等因素，使得現代的大多數人抵抗力普遍變差，罹患各種文明病。","answer":true},{"chapter":"第4週生物科技（上）","text":"健康食品功效有調節血糖功能、抗疲勞功能及近視功能 。","answer":false},{"chapter":"第4週生物科技（上）","text":"山藥可歸類為高脂、高植物性蛋白食品，長期食用有可能發胖 。","answer":false},{"chapter":"第4週生物科技（上）","text":"茄紅素(Lycopene)︰茄紅素具有強力的抗氧化能力，可以掃除自由基，可預防心血管疾病。","answer":true},{"chapter":"第4週生物科技（上）","text":"蜜柑降低糖化血色素指數，提高體內的抗氧化能力，預防糖尿病及攝護腺之各種併發症發生。","answer":false},{"chapter":"第4週生物科技（上）","text":"SOD愈高抗氧化能力愈差。","answer":false},{"chapter":"第4週生物科技（上）","text":"山藥治療尿道、陰道方面的細菌感染，山藥汁已被視預防泌尿道感染的保健飲料。","answer":false},{"chapter":"第4週生物科技（上）","text":"核准之功效宣稱為「可降低血脂肪」，但產品卻對外宣稱「可有效治療糖尿病」，則違反健康食品管理法第14條第一項之規定（號稱保健效能超過許可範圍），將處新臺幣10萬元以上、50萬元以下罰金。","answer":false},{"chapter":"第4週生物科技（上）","text":"蜜柑降低糖化血色素(HbAlc)指數，提高體內的抗氧化能力，預防糖尿病之各種併發症的發生。","answer":true},{"chapter":"第4週生物科技（上）","text":"健康食品 若宣稱治療心臟病、糖尿病、肝硬化，則違反健康食品管理法第14條第二項之規定，將處新臺幣40萬元以上，200萬元以下罰金。","answer":false},{"chapter":"第5週生物科技（下）","text":"健康食品管理法所稱主管機關：在中央為行政院衛福部；在直轄市為直轄市政府，在縣 (市) 為縣 (市) 政府。","answer":true},{"chapter":"第5週生物科技（下）","text":"「糖化血色素」(HbA1d)是指人體血液中的紅血球含有血色素，當血液中的葡萄糖進入紅血球，和血紅素結合後，就形成糖化血色素。","answer":false},{"chapter":"第5週生物科技（下）","text":"總膽固醇或高密度脂蛋白(HDL)膽固醇含量較高的人，會加速動脈硬化、罹患高血壓、腦中風的危險性增加。","answer":false},{"chapter":"第5週生物科技（下）","text":"依據健康食品管以法未經核准擅自製造或輸入健康食品或違反第六條第一項規定者，處三年以下有期徒刑，得併科新台幣一百萬元以下罰金。","answer":true},{"chapter":"第5週生物科技（下）","text":"地球上現存的生命主要是以RNA作為遺傳物質。除了遺傳之外，決定生物特徵的因素還有環境，以及環境與基因的交互作用。","answer":false},{"chapter":"第5週生物科技（下）","text":"洋蔥的効用(1)預防骨質疏鬆症(2)降血壓(3) 增LDL。","answer":false},{"chapter":"第5週生物科技（下）","text":"甜劑成本低廉的甜劑，蔗糖的約300倍以上，潛在的毒素卻十分可怕，可能導致乳癌","answer":false},{"chapter":"第5週生物科技（下）","text":"一般紅血球平均壽命為120天，葡萄糖附在血色素上不容易脫落， 因此檢查血中糖化血色素的濃度，可以反映體內最近6個月的血糖控制情況。","answer":false},{"chapter":"第5週生物科技（下）","text":"一般人醣化血色素的正常值約為4-6％，糖尿病人宜控制在7％以下。","answer":true},{"chapter":"第5週生物科技（下）","text":"XY決定性別：在大部分哺乳動物、果蠅和部分植物（如銀杏），雄性有兩條X染色體，雌性有一條X染色體和一條Y染色體。","answer":false},{"chapter":"第5週生物科技（下）","text":"體溫發燒的量測，額溫≧37.5℃為體溫發燒現象","answer":true},{"chapter":"第5週生物科技（下）","text":"台北市政府推行的U-Sport App中健康萬步走，任務獎勵   第一階段 20萬步獎勵U幣30U，30萬步獎勵U幣50U，U 幣可加值悠遊卡（綁定），及各個台北市運動中心活動等 （依台北市政府公告）","answer":true},{"chapter":"第5週生物科技（下）","text":"含氧原子的類胡蘿蔔素分子，如葉黃素與玉米黃質，被稱作葉黃素類。","answer":true},{"chapter":"第5週生物科技（下）","text":"β-胡蘿蔔素（-Carotene）是類胡蘿蔔素的一種，為維生素 A 的前驅物，存在於紅黃色蔬果（紅蘿蔔、南瓜）中。它在體內可轉化為維生素 A，具有強力抗氧化作用，有助於保護眼睛視力、維持皮膚健康、提高免疫力及降低部分癌症風險。因屬水溶性，建議搭配油脂烹調攝取效果更佳","answer":false},{"chapter":"第5週生物科技（下）","text":"不含氧原子的類胡蘿蔔素，如α-胡蘿蔔素、β-胡蘿蔔素與番茄紅素被稱作胡蘿蔔素。胡蘿蔔素分子只包含碳、氫原子，因此屬於不飽和烴。","answer":true},{"chapter":"第7週光電科技","text":"光電科技是一門光學和電子學結合在一起的科學，利用把光轉成電訊號或電轉成光訊號的科技。","answer":true},{"chapter":"第7週光電科技","text":"太陽能電池（Solar Cell）是電能轉換成光能的元件。","answer":false},{"chapter":"第7週光電科技","text":"LED的點燈，必需使電流從發光二極體的陽極朝陰極流動，該偏壓稱為逆向偏壓。","answer":false},{"chapter":"第7週光電科技","text":"當LED與電池連接時，電子由電池的負極流入N型半導體，電洞由電池的正極流入P型半導體，電子與電洞在P型與N型的接面處結合，並且由晶粒的上方發光。","answer":true},{"chapter":"第7週光電科技","text":"光電科技可以應用在交通「科技執法」及「科技農業」生產上。","answer":true},{"chapter":"第7週光電科技","text":"光敏電阻的特性為光強度增加，則電阻減小。","answer":true},{"chapter":"第7週光電科技","text":"感光二極體（photodiode）的工作偏壓為順向偏壓。","answer":false},{"chapter":"第7週光電科技","text":"RFID=Radio Frequency Identification，中文稱為無線射頻辨識，是一種接觸式自動識別技術。","answer":false},{"chapter":"第7週光電科技","text":"3C產品中Consumer electronics產品為電視、冷氣、音響。","answer":true},{"chapter":"第7週光電科技","text":"地理資訊技術應用於物流分析(1)建立物流系統的車輛路線模型(2)最長路徑模型(3)網路物流模型(4)物流系統設施區位模型。","answer":false},{"chapter":"第7週光電科技","text":"光纖的特性：傳遞數度快、能量損失極小、不受EMI影響。","answer":true},{"chapter":"第7週光電科技","text":"科技執法中，平均速率計算法（區間測速）：記錄車輛通過A點與B點的時間，以「距離/時間」計算平均車速。若高於規定秒數即代表超速。","answer":false}];
+
+
+var NOTES = [
+  {chapter:"第二週 自然科學的探究理論",points:[
+    "哥白尼(1473-1544) 提出太陽中心學說「天體運行論」。",
+    "哈維(William Harvey, 1578-1657)發現人體血液循環。",
+    "牛頓第一運動定律：當物體不受外力作用，或所受合力為零時，原先靜止者恆靜止，原先運動者恆沿著直線作等速度運動。",
+    "牛頓第二運動定律：物體受力後所得的加速度，和其所受的淨力(即合力)成正比，和其質量成反比。F＝ｍ‧ａ，此定律又稱為加速度定律。",
+    "牛頓第三運動定律：當兩物體交互作用時，彼此互以力作用於對方，兩者大小相等，方向相反，作用在不同的物體上。",
+    "歸納法犯了以偏概全的邏輯錯誤。",
+    "演繹法：從全體的共同特性去推論個別特性，又稱為三段論法(大前提、小前提及結論)；例：有葉綠體的植物皆會行光合作用，榕樹也有葉綠體，所以榕樹也會行光合作用。",
+    "蝴蝶效應：初始條件十分微小的變化經過不斷放大，對其未來狀態會造成極其巨大的差別。有些小事如經系統放大，則對一個組織、一個國家來說是很重要的，就不能糊塗。",
+    "青蛙現象：一些突變事件，往往容易引起人們的警覺，而易致人於死地的卻是在自我感覺良好的情況下，對實際情況的逐漸惡化，沒有清醒的察覺。",
+    "鱷魚法則：當你發現自己的交易背離了市場的方向，必須立即止損，不得有任何延誤，不得存有任何僥倖。",
+    "鮎魚效應：若在沙丁魚中放一條鮎魚，成活率會大大提高。鮎魚在陌生環境四處亂遊，對好靜的沙丁魚起到攪拌作用，使沙丁魚加速游動，解決缺氧問題。",
+    "刺猬法則：人際交往中的「心理距離效應」—既能互相獲得對方的溫暖而又不至於被扎。",
+    "破窗理論：及時的解決問題！一個房子如果窗戶破了，沒有人去修補，隔不久，其它的窗戶也會莫名其妙地被人打破。"
+  ]},
+  {chapter:"第三週 科技與生活",points:[
+    "汽車安全氣囊(SRS)又稱為Air-bag，屬於被動安全設備，必須繫有安全帶的前提下，才能產生最大的防護效果。",
+    "汽車安全氣囊系統一般是由碰撞感測器、電腦處理器、充氣裝置及氣囊等幾個部分組成。",
+    "安全氣囊是高強度的布囊，容量50-90公升，氣囊會在0.03秒以230-320公里/小時的速度瞬間充氣，作為與車體與乘客的緩衝，充氣也會迅速排氣以免阻擋駕駛人視線或影響救援工作。",
+    "安全氣囊並不能保護幼童、體型小駕駛者及孕婦胎兒。",
+    "ABS是指「防鎖死煞車系統」，主要目的在於使行駛中之車輛在煞車過程中處於可控制的狀態，防止因輪胎鎖死而使車輛失去控制，也可以減少車輛輪胎的磨損。",
+    "5G手機跟4G比，傳輸速率更高、網路容量更大。5G的網速峰值已達到每秒10G，而4G則每秒100M的速率，5G網速差不多是4G的100倍。",
+    "RFID中文稱為無線射頻辨識，是屬於非接觸式自動識別技術其中的一種技術。",
+    "全球定位系統是由美國國防部發射的24顆衛星組成的全球地理位置定位、導航和授時系統，由空間衛星系統、地面監控系統和用戶接收系統三大子系統構成。",
+    "安全氣囊的碰撞感測器及電腦處理器用以判斷碰撞程度及傳遞訊號，當碰撞超過安全帶保護能力時，便產生脈衝(pulse)電流，觸發充氣裝置，點燃氣囊內的三氮化鈉(NaN3)並釋放出大量氮氣(N2)。",
+    "汽車安全氣囊內的火藥，疊氮化鈉，分子式NaN3，無色六角形晶體，易溶於水和液氨。可能會造成火藥受潮失效，必須定期檢修。",
+    "全球定位系統可應用：(1)交通工具的導航定位 (2)大地測量 (3)數位化製圖 (4)貨運、救護、消防、警政的任務派遣 (5)登山定位與山難協尋 (6)精確定時 (7)軍事。",
+    "北斗衛星第三代導航系統空間段計畫由30顆衛星組成，包括3顆靜止軌道衛星、24顆中地球軌道衛星、3顆傾斜同步軌道衛星。"
+  ]},
+  {chapter:"第四週 生物科技（上）",points:[
+    "環境品質的惡化、現代生活忙碌以致運動量減少、飲食習慣不佳、氣候異常等因素，使得現代的大多數人抵抗力普遍變差，罹患各種文明病。",
+    "食品上市時都是一般食品，而「健康食品」則須依「健康食品管理法」相關規定，經驗證登記取得許可後才能稱為「健康食品」。",
+    "健康食品功效有調節血糖功能、抗疲勞功能及調節血壓功效。（注意：並無治療近視功能）",
+    "SOD愈高抗氧化能力愈好。超抗氧化酵素(Superoxide Dismutase, SOD)。",
+    "薏仁的生理機能有調節內分泌、除濕及美白作用。生理機能：(1)降血糖 (2)促進排卵 (3)消炎。",
+    "山藥可歸類為高脂、高植物性蛋白食品，長期食用也不會發胖。",
+    "蔓越莓(cranberry)治療尿道、陰道方面的細菌感染，蔓越莓汁已被視為預防泌尿道感染的保健飲料。功能：(1)預防結石 (2)治療尿道 (3)陰道細菌感染。",
+    "茄紅素(Lycopene)：具有強力的抗氧化能力，可以掃除自由基，可預防心血管疾病。功效：(1)抗氧化能力 (2)抗癌 (3)降低血液低密度脂蛋白(LDL)。",
+    "甲殼質對人體的生理機能：有強化免疫力、降低膽固醇、改善消化機能、減少體內重金屬的蓄積。",
+    "臨床研究發現，靈芝具有滋補、保肝、強壯、鎮靜、祛痰、降血脂、健腦健胃、消炎、利尿、鎮咳等作用。",
+    "蜜柑的功效：(1)提高體內的抗氧化能力 (2)降低糖化血色素(HbA1c)指數預防糖尿病 (3)改善血液循環不良。",
+    "洋蔥的功用：(1)預防骨質疏鬆症 (2)降血壓 (3)增加HDL。",
+    "大蒜中的二丙烯基硫醇可抑制人類乳癌細胞的成長，其與魚油併用有加乘的效果。",
+    "葡萄皮（紫高麗菜、紫色玉米、芙蓉）的花青素功效：(1)減少罹患心血管疾病 (2)改善夜盲症 (3)具抗氧化作用。",
+    "下列具抗氧化能力之物質：(1)花青素 (2)β胡蘿蔔素 (3)番茄紅素。"
+  ]},
+  {chapter:"第五週 生物科技（下）",points:[
+    "「糖化血色素」(HbA1c)是指人體血液中的紅血球含有血色素，當血液中的葡萄糖進入紅血球，和血紅素結合後，就形成糖化血色素。",
+    "一般紅血球平均壽命為120天，葡萄糖附在血色素上不容易脫落，因此檢查血中糖化血色素的濃度，可以反映體內最近2-3個月的血糖控制情況。",
+    "一般人醣化血色素的正常值約為4-6%，糖尿病人宜控制在7%以下。2009年美國糖尿病學會提出以「糖化血色素」≥6.5%作為糖尿病診斷標準。",
+    "總膽固醇或低密度脂蛋白(LDL)膽固醇含量較高的人，會加速動脈硬化、罹患高血壓、腦中風的危險性增加。",
+    "膳食纖維或膳食纖維補充品，有助於預防大腸癌及心血管疾病。",
+    "控制膽固醇的攝取時，應選擇多元不飽和脂肪酸較豐富的油脂（如芥花油、葵花油、橄欖油、葡萄籽油等）及蔬菜水果。",
+    "食品為了防腐保鮮、提升買氣與增加口感，在製造過程中依法加進食品添加物，對健康也許是在安全範圍，但是長期食用，積少成多對健康會造成影響。",
+    "食品中常見的添加物有：(1)防腐劑 (2)人工色素 (3)漂白劑。防止蝦頭變黑，可能加入保色劑：(1)磷酸 (2)硝酸鹽 (3)亞硝酸鹽。",
+    "地球上現存的生命主要是以DNA作為遺傳物質。除了遺傳之外，決定生物特徵的因素還有環境，以及環境與基因的交互作用。",
+    "XY決定性別：在大部分哺乳動物、果蠅和部分植物（如銀杏），雌性有兩條X染色體，雄性有一條X染色體和一條Y染色體。",
+    "BMI(Body Mass Index)：身體質量指數。計算方法：體重(公斤)/身高的平方(公尺)。(1)輕度肥胖：27≦BMI＜30 (2)過重：24≦BMI＜27 (3)正常：18.5≦BMI＜24 (4)過輕：BMI＜18.5。",
+    "發燒的定義：身體內部的中心體溫≧38℃，介於37.5℃與38℃之間為低度發燒。(1)肛溫：38℃ (2)耳溫：38℃ (3)額溫：37.5℃ (4)口溫：37.5℃ (5)腋溫：37℃。通常額溫、口溫會比肛溫、耳溫低0.5℃；腋溫平均比肛溫低0.8～1℃。",
+    "健康食品管理法所稱主管機關：在中央為行政院衛福部；在直轄市為直轄市政府；在縣(市)為縣(市)政府。",
+    "健康食品管理法第14條：標示或廣告不得有虛偽不實、誇張之內容，宣稱之保健效能不得超過許可範圍，不得涉及醫療效能之內容。",
+    "健康食品管理法第24條：違反第一項規定者，處新臺幣十萬元以上五十萬元以下罰鍰；違反第二項規定者，處新臺幣四十萬元以上二百萬元以下罰鍰。",
+    "「健康食品」的正確觀念：(1)需要事前登記許可 (2)保健用途 (3)預防功用。保健核定功效共13項，含調節血脂功能、牙齒保健功能、延緩衰老功能等。",
+    "保健之道首在避免各種污染物質及有毒物質進入我們的體內，多食用健康營養的機能性食品及多運動(排毒)。商人經常用甲醛來漂白及防腐免洗筷子！",
+    "含氧原子的類胡蘿蔔素分子，如葉黃素與玉米黃質，被稱作葉黃素類。",
+    "不含氧原子的類胡蘿蔔素，如α-胡蘿蔔素、β-胡蘿蔔素與番茄紅素被稱作胡蘿蔔素。胡蘿蔔素分子只包含碳、氫原子，因此屬於不飽和烴。",
+    "β-胡蘿蔔素(β-Carotene)是類胡蘿蔔素的一種，存在於紅黃色蔬果（紅蘿蔔、南瓜）中。它在體內可轉化為維生素A，具有強力抗氧化作用，有助於保護眼睛視力、維持皮膚健康、提高免疫力及降低部分癌症風險。因屬脂溶性，建議搭配油脂烹調攝取效果更佳。"
+  ]},
+  {chapter:"第七週 光電科技",points:[
+    "光電科技是一門光學和電子學結合在一起的科學，利用把光轉成電子訊號或電子轉成光訊號的方法。",
+    "太陽能電池（Solar Cell）是光能轉換成電能的元件。",
+    "當LED與電池連接時，電子由電池的負極流入N型半導體；電洞由電池的正極流入P型半導體，電子與電洞在P型與N型的接面處結合，並且由晶粒的上方發光。",
+    "LED的點燈，必需使電流從發光二極體的陽極朝陰極流動，該偏壓稱為順向偏壓。",
+    "感光二極體（photodiode）的工作偏壓為逆向偏壓；感光二極體為「光能轉換成電能」的光電元件；光電二極體是在逆向偏壓作用之下工作，光的強度越大，電流也越大。",
+    "光電阻、光導體、光導管皆為光敏電阻。光敏電阻的特性為光強度增加，則電阻減小，通過的電流越大。",
+    "光的防雜訊干擾特性相對於電來說是較優越的。",
+    "地理資訊技術應用於物流分析：(1)建立物流系統的車輛路線模型 (2)最短路徑模型 (3)網路物流模型 (4)物流系統設施區位模型。",
+    "科技執法中，平均速率計算法（區間測速）：記錄車輛通過A點與B點的時間，以「距離/時間」計算平均車速。若低於規定時間（秒）即代表超速。",
+    "3C產品：(1)Computer 電腦 (2)Communication 通訊設備 (3)Consumer electronics 消費性電子產品(家電)，如電視、冷氣、音響。",
+    "九大行星離太陽由近而遠：水星（Mercury）、金星（Venus）、地球（Earth）、火星（Mars）、木星（Jupiter）、土星（Saturn）、天王星（Uranus）、海王星（Neptune）、冥王星（Pluto）。",
+    "北斗衛星第三代導航系統空間段計畫由30顆衛星組成，包括3顆靜止軌道衛星、24顆中地球軌道衛星、3顆傾斜同步軌道衛星。",
+    "全球定位系統可應用：(1)交通工具的導航定位 (2)大地測量 (3)數位化製圖 (4)貨運、救護、消防、警政的任務派遣 (5)登山定位與山難協尋 (6)精確定時 (7)軍事。"
+  ]}
+];
+
+function switchTab(tab) {
+  document.getElementById("tab-quiz").classList.toggle("active", tab === "quiz");
+  document.getElementById("tab-notes").classList.toggle("active", tab === "notes");
+  document.getElementById("section-quiz").classList.toggle("hidden", tab !== "quiz");
+  document.getElementById("section-notes").classList.toggle("hidden", tab !== "notes");
+  if (tab === "notes") renderNotes();
+}
+
+function renderNotes() {
+  var list = document.getElementById("notes-list");
+  if (list.innerHTML) return;
+  for (var i = 0; i < NOTES.length; i++) {
+    var n = NOTES[i];
+    var div = document.createElement("div");
+    div.className = "notes-chapter";
+    var pointsHtml = n.points.map(function(p, j) {
+      return '<div class="notes-point"><span class="notes-num">' + (j+1) + '.</span><span>' + p + '</span></div>';
+    }).join("");
+    div.innerHTML =
+      '<div class="notes-chapter-header" onclick="toggleChapter(this)">' +
+        '<span class="notes-chapter-title">' + n.chapter + '</span>' +
+        '<span class="notes-chapter-arrow">&#9660;</span>' +
+      '</div>' +
+      '<div class="notes-chapter-body">' + pointsHtml + '</div>';
+    list.appendChild(div);
+  }
+}
+
+function toggleChapter(header) {
+  header.classList.toggle("open");
+  header.nextElementSibling.classList.toggle("open");
+}
+
+var quizMode = "random";
+var questions = [];
+var currentIndex = 0;
+var userAnswers = {};
+var answered = {};
+
+document.getElementById("total-count").textContent = QUESTIONS.length;
+loadHistory();
+
+function selectMode(mode) {
+  quizMode = mode;
+  var cards = document.querySelectorAll(".mode-card");
+  for (var i = 0; i < cards.length; i++) cards[i].classList.remove("active");
+  document.querySelector('[data-mode="' + mode + '"]').classList.add("active");
+}
+
+function startQuiz() {
+  if (quizMode === "random") {
+    var pool = QUESTIONS.slice();
+    for (var i = pool.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = pool[i]; pool[i] = pool[j]; pool[j] = tmp;
+    }
+    questions = pool.slice(0, 25);
+  } else {
+    questions = QUESTIONS.slice();
+  }
+  currentIndex = 0; userAnswers = {}; answered = {};
+  document.getElementById("quiz-title").textContent = quizMode === "random" ? "隨機 25 題" : "全部作答（" + questions.length + " 題）";
+  document.getElementById("quiz-total").textContent = questions.length;
+  showPage("quiz"); renderQuestion();
+}
+
+function renderQuestion() {
+  var q = questions[currentIndex];
+  document.getElementById("q-chapter").textContent = q.chapter;
+  document.getElementById("q-number").textContent = "第 " + (currentIndex + 1) + " 題";
+  document.getElementById("q-text").textContent = q.text;
+  document.getElementById("quiz-current").textContent = currentIndex + 1;
+  var correct = 0;
+  var keys = Object.keys(userAnswers);
+  for (var i = 0; i < keys.length; i++) { var qi = parseInt(keys[i]); if (questions[qi] && userAnswers[qi] === questions[qi].answer) correct++; }
+  document.getElementById("quiz-correct").textContent = correct;
+  document.getElementById("progress-fill").style.width = ((currentIndex + 1) / questions.length * 100) + "%";
+  var isAns = answered[currentIndex]; var userAns = userAnswers[currentIndex];
+  var btnTrue = document.getElementById("btn-true"); var btnFalse = document.getElementById("btn-false");
+  btnTrue.className = "tf-btn true-btn"; btnFalse.className = "tf-btn false-btn";
+  if (isAns) {
+    btnTrue.classList.add("disabled"); btnFalse.classList.add("disabled");
+    if (q.answer === true) btnTrue.classList.add("correct"); else btnFalse.classList.add("correct");
+    if (userAns !== q.answer) { if (userAns === true) btnTrue.classList.add("wrong"); else btnFalse.classList.add("wrong"); }
+  }
+  var fb = document.getElementById("feedback-bar");
+  if (isAns) {
+    fb.classList.remove("hidden");
+    if (userAns === q.answer) { fb.className = "feedback-bar correct"; fb.textContent = "✓ 答對了！"; }
+    else { fb.className = "feedback-bar wrong"; fb.textContent = "✗ 答錯了，正確答案是" + (q.answer ? " ○（是）" : " ╳（非）"); }
+  } else { fb.classList.add("hidden"); }
+  document.getElementById("btn-prev").style.visibility = currentIndex > 0 ? "visible" : "hidden";
+  document.getElementById("btn-next").textContent = currentIndex === questions.length - 1 ? "查看結果" : "下一題";
+}
+
+function selectAnswer(ans) {
+  if (answered[currentIndex]) return;
+  userAnswers[currentIndex] = ans; answered[currentIndex] = true; renderQuestion();
+  setTimeout(function() {
+    if (currentIndex < questions.length - 1) { currentIndex++; renderQuestion(); window.scrollTo(0, 0); }
+    else { endQuiz(); }
+  }, 800);
+}
+
+function nextQuestion() {
+  if (currentIndex < questions.length - 1) { currentIndex++; renderQuestion(); window.scrollTo(0, 0); } else { endQuiz(); }
+}
+function prevQuestion() {
+  if (currentIndex > 0) { currentIndex--; renderQuestion(); window.scrollTo(0, 0); }
+}
+
+function endQuiz() {
+  var correct = 0, wrong = 0, unanswered = 0;
+  for (var i = 0; i < questions.length; i++) {
+    if (!(i in userAnswers)) unanswered++;
+    else if (userAnswers[i] === questions[i].answer) correct++;
+    else wrong++;
+  }
+  var ac = correct + wrong;
+  var pct = ac > 0 ? Math.round((correct / ac) * 100) : 0;
+  document.getElementById("result-score").textContent = pct + "%";
+  document.getElementById("result-detail").textContent = "共 " + questions.length + " 題，已作答 " + ac + " 題";
+  document.getElementById("stat-correct").textContent = correct;
+  document.getElementById("stat-wrong").textContent = wrong;
+  document.getElementById("stat-unanswered").textContent = unanswered;
+  setTimeout(function() { document.getElementById("result-bar-fill").style.width = pct + "%"; }, 100);
+  saveHistory(pct, correct, wrong, unanswered); showPage("result"); window.scrollTo(0, 0);
+}
+
+function showReview() {
+  var section = document.getElementById("review-section");
+  if (section.classList.contains("hidden")) { section.classList.remove("hidden"); } else { section.classList.add("hidden"); return; }
+  if (section.innerHTML) return;
+  for (var i = 0; i < questions.length; i++) {
+    var q = questions[i]; var userAns = userAnswers[i];
+    var isCorrect = (i in userAnswers) && userAns === q.answer;
+    var div = document.createElement("div");
+    var cls = (i in userAnswers) ? (isCorrect ? "was-correct" : "was-wrong") : "";
+    div.className = "review-item " + cls;
+    var ansText = q.answer ? "○ 是" : "╳ 非"; var ansClass = q.answer ? "ans-true" : "ans-false";
+    var userText = "";
+    if (i in userAnswers) { if (!isCorrect) userText = " ← 你選了：" + (userAns ? "○ 是" : "╳ 非"); }
+    else { userText = " ← 未作答"; }
+    div.innerHTML = '<div class="review-q-text">' + (i + 1) + ". " + q.text + "</div>" +
+      '<div class="review-answer ' + ansClass + '">正確答案：' + ansText + userText + "</div>";
+    section.appendChild(div);
+  }
+}
+
+function showPage(page) {
+  document.getElementById("page-home").classList.toggle("hidden", page !== "home");
+  document.getElementById("page-quiz").classList.toggle("hidden", page !== "quiz");
+  document.getElementById("page-result").classList.toggle("hidden", page !== "result");
+}
+
+function goHome() {
+  document.getElementById("review-section").innerHTML = "";
+  document.getElementById("review-section").classList.add("hidden");
+  document.getElementById("result-bar-fill").style.width = "0%";
+  showPage("home"); loadHistory();
+}
+
+function saveHistory(pct, correct, wrong, unanswered) {
+  var history = JSON.parse(localStorage.getItem("techQuizHistory") || "[]");
+  history.unshift({ mode: quizMode === "random" ? "隨機25題" : "全部作答", score: pct, correct: correct, wrong: wrong, unanswered: unanswered, total: questions.length, date: new Date().toLocaleString("zh-TW") });
+  if (history.length > 50) history.pop();
+  localStorage.setItem("techQuizHistory", JSON.stringify(history));
+}
+
+function loadHistory() {
+  var history = JSON.parse(localStorage.getItem("techQuizHistory") || "[]");
+  var section = document.getElementById("history-section"); var list = document.getElementById("history-list");
+  if (history.length === 0) { section.classList.add("hidden"); return; }
+  section.classList.remove("hidden"); list.innerHTML = "";
+  var show = history.slice(0, 10);
+  for (var i = 0; i < show.length; i++) {
+    var h = show[i]; var div = document.createElement("div"); div.className = "history-item";
+    var color = h.score >= 60 ? "var(--success)" : "var(--danger)";
+    div.innerHTML = "<div><div>" + h.mode + "</div><div style='font-size:12px;color:var(--text-light)'>" + h.date + " | " + h.correct + "對 " + h.wrong + "錯</div></div><div class='history-score' style='color:" + color + "'>" + h.score + "%</div>";
+    list.appendChild(div);
+  }
+}
+</script>
+</body>
+</html>

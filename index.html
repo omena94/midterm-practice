@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>二下期中考練習</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+  background: #F0EBE3;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.wrapper { width: 100%; max-width: 640px; }
+.header { text-align: center; margin-bottom: 40px; }
+.header h1 { font-size: 30px; font-weight: 800; color: #3A3530; margin-bottom: 8px; letter-spacing: 1px; }
+.header p { color: #8A847E; font-size: 15px; }
+.cards { display: flex; flex-direction: column; gap: 14px; }
+.card {
+  display: flex; align-items: center; justify-content: space-between;
+  text-decoration: none;
+  border-radius: 14px;
+  padding: 24px 28px;
+  transition: all 0.2s;
+  border: 2px solid transparent;
+}
+.card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(106,96,88,0.12); }
+.card-info { flex: 1; }
+.card-title { font-size: 18px; font-weight: 700; margin-bottom: 5px; }
+.card-meta { font-size: 13px; color: #8A847E; }
+.card-arrow { font-size: 18px; color: #C5BDB6; margin-left: 16px; }
+
+.card-tech { background: #E6EDF0; border-color: #C0CDD4; }
+.card-tech:hover { border-color: #8A9FA7; box-shadow: 0 8px 24px rgba(138,159,167,0.2); }
+.card-tech .card-title { color: #6B8088; }
+
+.card-mgmt { background: #E8EDE8; border-color: #C2CFC2; }
+.card-mgmt:hover { border-color: #8A9E8A; box-shadow: 0 8px 24px rgba(138,158,138,0.2); }
+.card-mgmt .card-title { color: #627062; }
+
+.card-leisure { background: #EDE8E4; border-color: #D0C4BC; }
+.card-leisure:hover { border-color: #A68B7B; box-shadow: 0 8px 24px rgba(166,139,123,0.2); }
+.card-leisure .card-title { color: #8A6E62; }
+
+.card-strategy { background: #EAE6F0; border-color: #C8BED8; }
+.card-strategy:hover { border-color: #8B7BAB; box-shadow: 0 8px 24px rgba(139,123,171,0.2); }
+.card-strategy .card-title { color: #6B5A8A; }
+
+.schedule { margin-top: 36px; }
+.schedule-title {
+  font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px;
+  color: #A09890; margin-bottom: 14px; text-align: center;
+}
+.schedule-item {
+  background: #FAF7F4; border: 1.5px solid #DDD5CC; border-radius: 12px;
+  padding: 16px 20px; margin-bottom: 10px;
+}
+.schedule-date {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+}
+.schedule-day {
+  font-size: 13px; font-weight: 700; color: white;
+  background: #9A8E85; padding: 3px 10px; border-radius: 999px;
+}
+.schedule-subject { font-size: 16px; font-weight: 700; color: #3A3530; }
+.schedule-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.tag {
+  font-size: 12px; font-weight: 600; padding: 2px 9px; border-radius: 999px;
+}
+.tag-open { background: #D8EBD8; color: #4E7A4E; }
+.tag-close { background: #EBDAD8; color: #7A4E4E; }
+.tag-time { background: #E0DAF0; color: #5A4E80; }
+.tag-online { background: #D8E8F0; color: #3A6880; }
+.schedule-notes { list-style: none; padding: 0; }
+.schedule-notes li {
+  font-size: 13px; color: #5A5550; padding: 3px 0;
+  display: flex; gap: 8px;
+}
+.schedule-notes li::before { content: "·"; color: #B0A8A0; font-weight: 700; flex-shrink: 0; }
+
+.exam-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 10px;
+}
+.exam-cell {
+  background: #F0EBE3; border: 1px solid #DDD5CC; border-radius: 8px;
+  padding: 6px 8px; text-align: center; font-size: 12px;
+}
+.exam-cell .q-num { color: #A09890; font-size: 11px; }
+.exam-cell .q-page { font-weight: 700; color: #3A3530; font-size: 13px; }
+.exam-cell .q-page.purple { color: #8B5E9E; }
+
+@media (max-width: 480px) {
+  .header h1 { font-size: 22px; }
+  .card { padding: 18px 20px; }
+  .card-title { font-size: 16px; }
+}
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="header">
+    <h1>二下期中考練習</h1>
+    <p>選擇科目，開始練習</p>
+  </div>
+  <div class="cards">
+    <a href="科技與應用.html" class="card card-tech">
+      <div class="card-info">
+        <div class="card-title">科技與應用</div>
+        <div class="card-meta">是非題 &middot; 58 題 &middot; 含重點整理</div>
+      </div>
+      <span class="card-arrow">&#9654;</span>
+    </a>
+    <a href="科技管理實務.html" class="card card-mgmt">
+      <div class="card-info">
+        <div class="card-title">科技管理實務</div>
+        <div class="card-meta">選擇題 &middot; 60 題 &middot; 三章 &middot; 含參考資料</div>
+      </div>
+      <span class="card-arrow">&#9654;</span>
+    </a>
+    <a href="休閒事業管理.html" class="card card-leisure">
+      <div class="card-info">
+        <div class="card-title">休閒事業管理</div>
+        <div class="card-meta">選擇題 &middot; 30 題 &middot; 六章</div>
+      </div>
+      <span class="card-arrow">&#9654;</span>
+    </a>
+  </div>
+
+  <div class="schedule">
+    <div class="schedule-title">期中考溫馨提醒</div>
+
+    <div class="schedule-item">
+      <div class="schedule-date">
+        <span class="schedule-day">4/27（一）</span>
+        <span class="schedule-subject">電子商務</span>
+      </div>
+      <div class="schedule-tags">
+        <span class="tag tag-open">Open Book</span>
+        <span class="tag tag-time">19:00 – 20:00</span>
+      </div>
+      <ul class="schedule-notes">
+        <li>參考資料在 TIP、LINE 相簿</li>
+        <li>考試時可以用手機或電腦</li>
+        <li>題型：簡答題、填空題</li>
+      </ul>
+    </div>
+
+    <div class="schedule-item">
+      <div class="schedule-date">
+        <span class="schedule-day">4/27（一）</span>
+        <span class="schedule-subject">科技與應用</span>
+      </div>
+      <div class="schedule-tags">
+        <span class="tag tag-close">Close Book</span>
+        <span class="tag tag-online">線上考試</span>
+        <span class="tag tag-time">20:30 – 21:10</span>
+      </div>
+      <ul class="schedule-notes">
+        <li>20:25 前要到教室簽名</li>
+        <li>1–25 是非題、26–50 選擇題</li>
+        <li>要看重點整理（在 TIP）</li>
+        <li>可以使用平板或電腦考試</li>
+        <li>可以帶不能連網的計算機</li>
+      </ul>
+    </div>
+
+    <div class="schedule-item">
+      <div class="schedule-date">
+        <span class="schedule-day">4/28（二）</span>
+        <span class="schedule-subject">科技管理實務</span>
+      </div>
+      <div class="schedule-tags">
+        <span class="tag tag-open">Open Book</span>
+        <span class="tag tag-time">18:30 – 19:30</span>
+      </div>
+      <ul class="schedule-notes">
+        <li>選擇題，考 25 題，範圍：第 1 ～ 3 章</li>
+        <li>題庫在TIP
+          
+        </li>
+        <li>可以提早交卷</li>
+      </ul>
+    </div>
+
+    <div class="schedule-item">
+      <div class="schedule-date">
+        <span class="schedule-day">4/29（三）</span>
+        <span class="schedule-subject">休閒事業管理</span>
+      </div>
+      <div class="schedule-tags">
+        <span class="tag tag-time">待確認時間</span>
+      </div>
+      <ul class="schedule-notes">
+        <li>選擇題，課本第 1 ～ 8 章</li>
+        <li>40 題考 20 題，題目約 4/17 已公布</li>
+      </ul>
+    </div>
+
+    <div class="schedule-item">
+      <div class="schedule-date">
+        <span class="schedule-day">4/30（四）</span>
+        <span class="schedule-subject">策略管理</span>
+      </div>
+      <div class="schedule-tags">
+        <span class="tag tag-time">19:00 – 20:00</span>
+      </div>
+      <ul class="schedule-notes">
+        <li>最早交卷：19:30</li>
+        <li>準備至少 40 字心得（不含標點符號）</li>
+        <li>考試內容如下（數字 = 對應簡報頁數）</li>
+      </ul>
+      <div class="exam-grid">
+        <div class="exam-cell"><div class="q-num">第1題</div><div class="q-page purple">17</div></div>
+        <div class="exam-cell"><div class="q-num">第2題</div><div class="q-page">8</div></div>
+        <div class="exam-cell"><div class="q-num">第3題</div><div class="q-page">8</div></div>
+        <div class="exam-cell"><div class="q-num">第4題</div><div class="q-page">13-14</div></div>
+        <div class="exam-cell"><div class="q-num">第5題</div><div class="q-page">板書</div></div>
+        <div class="exam-cell"><div class="q-num">第6題</div><div class="q-page">14</div></div>
+        <div class="exam-cell"><div class="q-num">第7題</div><div class="q-page purple">24</div></div>
+        <div class="exam-cell"><div class="q-num">第8題</div><div class="q-page">26</div></div>
+        <div class="exam-cell"><div class="q-num">第9題</div><div class="q-page">26</div></div>
+        <div class="exam-cell"><div class="q-num">第10題</div><div class="q-page">46-47</div></div>
+        <div class="exam-cell"><div class="q-num">第11題</div><div class="q-page">47</div></div>
+        <div class="exam-cell"><div class="q-num">第12題</div><div class="q-page">50</div></div>
+        <div class="exam-cell"><div class="q-num">第13題</div><div class="q-page purple">51</div></div>
+        <div class="exam-cell"><div class="q-num">第14題</div><div class="q-page">54</div></div>
+        <div class="exam-cell"><div class="q-num">第15題</div><div class="q-page">37</div></div>
+        <div class="exam-cell"><div class="q-num">第16題</div><div class="q-page">59</div></div>
+        <div class="exam-cell"><div class="q-num">第17題</div><div class="q-page">54</div></div>
+        <div class="exam-cell"><div class="q-num">第18題</div><div class="q-page">56</div></div>
+        <div class="exam-cell"><div class="q-num">第19題</div><div class="q-page">62</div></div>
+        <div class="exam-cell"><div class="q-num">第20題</div><div class="q-page">23</div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

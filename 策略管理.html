@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>策略管理 選擇題練習</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --primary: #8B7BAB;
+  --primary-dark: #6B5A8A;
+  --success: #7B9E80;
+  --danger: #AE7878;
+  --bg: #F0EBE3;
+  --card: #F8F5F1;
+  --text: #3A3530;
+  --text-light: #8A847E;
+  --border: #D8D1C9;
+  --radius: 12px;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+.container { max-width: 800px; margin: 0 auto; padding: 20px; }
+
+.header { text-align: center; padding: 30px 20px 20px; }
+.header h1 { font-size: 28px; font-weight: 700; color: var(--primary-dark); margin-bottom: 8px; }
+.header p { color: var(--text-light); font-size: 15px; }
+.back-link {
+  display: inline-block; margin-bottom: 12px;
+  color: var(--primary-dark); text-decoration: none; font-size: 14px; font-weight: 600;
+  padding: 6px 14px; background: #EAE5DF; border-radius: 8px; transition: background 0.2s;
+}
+.back-link:hover { background: #D8D1C9; }
+
+.mode-group { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+.mode-card {
+  flex: 1; min-width: calc(50% - 8px); padding: 20px 16px; border: 2px solid var(--border);
+  border-radius: var(--radius); background: var(--card); cursor: pointer; text-align: center; transition: all 0.2s;
+}
+.mode-card:hover { border-color: var(--primary); }
+.mode-card.active { border-color: var(--primary); background: #E8E4F0; }
+.mode-card h3 { font-size: 17px; margin-bottom: 6px; }
+.mode-card p { font-size: 13px; color: var(--text-light); }
+
+.start-btn {
+  display: block; width: 100%; padding: 16px; margin-top: 8px; border: none;
+  border-radius: var(--radius); background: var(--primary); color: white;
+  font-size: 18px; font-weight: 600; cursor: pointer; transition: background 0.2s;
+}
+.start-btn:hover { background: var(--primary-dark); }
+
+.screen { padding: 32px; display: none; }
+.screen.active { display: block; }
+
+.progress-bar-wrap {
+  background: #D8D1C9; border-radius: 99px; height: 8px; margin-bottom: 20px; overflow: hidden;
+}
+.progress-bar-fill {
+  background: var(--primary); height: 100%; border-radius: 99px; transition: width .4s ease;
+}
+.quiz-meta {
+  display: flex; justify-content: space-between; font-size: 0.85rem; color: #8A847E; margin-bottom: 8px;
+}
+.chapter-tag {
+  display: inline-block; background: #E8E4F0; color: var(--primary-dark);
+  font-size: 0.78rem; font-weight: 600; padding: 3px 10px; border-radius: 99px; margin-bottom: 12px;
+}
+.question-text {
+  font-size: 1.05rem; line-height: 1.7; color: #3A3530; margin-bottom: 24px; font-weight: 500;
+}
+.options { display: flex; flex-direction: column; gap: 10px; }
+.option-btn {
+  display: flex; align-items: flex-start; gap: 12px; padding: 14px 18px;
+  border: 2px solid #D8D1C9; border-radius: 12px; background: #F8F5F1;
+  cursor: pointer; font-size: 0.95rem; text-align: left; transition: all .15s; width: 100%; line-height: 1.5;
+}
+.option-btn:hover:not(:disabled) { border-color: var(--primary); background: #EAE5DF; }
+.option-btn .opt-letter {
+  min-width: 28px; height: 28px; border-radius: 50%; background: #D8D1C9;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 0.85rem; flex-shrink: 0; margin-top: 1px;
+}
+.option-btn.correct { border-color: #7B9E80; background: #E4EFE5; }
+.option-btn.correct .opt-letter { background: #7B9E80; color: white; }
+.option-btn.wrong { border-color: #AE7878; background: #F2E5E5; }
+.option-btn.wrong .opt-letter { background: #AE7878; color: white; }
+.option-btn:disabled { cursor: default; }
+
+.feedback {
+  margin-top: 18px; padding: 14px 18px; border-radius: 10px;
+  font-size: 0.95rem; font-weight: 500; display: none;
+}
+.feedback.correct { background: #E4EFE5; color: #4E7252; border: 1px solid #7B9E80; }
+.feedback.wrong   { background: #F2E5E5; color: #7A4848; border: 1px solid #AE7878; }
+
+.quiz-actions { margin-top: 22px; display: flex; justify-content: flex-end; }
+
+.btn {
+  display: inline-block; padding: 12px 28px; border-radius: 10px; border: none;
+  font-size: 1rem; font-weight: 600; cursor: pointer; transition: all .2s;
+}
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: var(--primary-dark); }
+.btn-outline { background: #F8F5F1; color: var(--primary); border: 2px solid var(--primary); }
+.btn-outline:hover { background: #EAE5DF; }
+
+.score-circle {
+  width: 130px; height: 130px; border-radius: 50%; background: var(--primary);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  margin: 0 auto 20px; color: white;
+}
+.score-circle .score-num { font-size: 2.5rem; font-weight: 800; line-height: 1; }
+.score-circle .score-label { font-size: 0.8rem; opacity: 0.85; }
+
+.result-message { text-align: center; font-size: 1.2rem; font-weight: 600; color: #3A3530; margin-bottom: 6px; }
+.result-sub { text-align: center; font-size: 0.9rem; color: #8A847E; margin-bottom: 28px; }
+
+.review-list { margin: 20px 0; }
+.review-item {
+  border: 1px solid #D8D1C9; border-radius: 10px; padding: 14px 16px;
+  margin-bottom: 10px; font-size: 0.9rem;
+}
+.review-item.correct-item { border-left: 4px solid #7B9E80; }
+.review-item.wrong-item   { border-left: 4px solid #AE7878; }
+.review-item .r-question  { color: #3A3530; margin-bottom: 6px; line-height: 1.5; }
+.review-item .r-your      { color: #AE7878; }
+.review-item .r-correct   { color: #7B9E80; font-weight: 600; }
+
+.result-actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 12px; }
+.section-title {
+  font-size: 0.85rem; font-weight: 700; color: var(--primary);
+  text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <a href="index.html" class="back-link">&#9664; 返回主頁</a>
+    <h1>策略管理 選擇題練習</h1>
+    <p>依據期中考 20 題範圍出題</p>
+  </div>
+
+  <!-- START -->
+  <div class="screen active" id="screen-start">
+    <div class="section-title">選擇練習模式</div>
+    <div class="mode-group">
+      <div class="mode-card active" id="mode-random" onclick="selectMode('random')">
+        <h3>隨機 20 題</h3>
+        <p>從題庫隨機抽取 20 題</p>
+      </div>
+      <div class="mode-card" id="mode-all" onclick="selectMode('all')">
+        <h3>全部練習</h3>
+        <p>依序作答所有題目</p>
+      </div>
+    </div>
+    <button class="start-btn" onclick="startQuiz()">開始練習</button>
+  </div>
+
+  <!-- QUIZ -->
+  <div class="screen" id="screen-quiz">
+    <div class="quiz-meta">
+      <span id="q-counter"></span>
+      <span id="q-score-live">答對：0 題</span>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progress-fill"></div>
+    </div>
+    <div class="chapter-tag" id="q-chapter-tag"></div>
+    <div class="question-text" id="q-text"></div>
+    <div class="options" id="q-options"></div>
+    <div class="feedback" id="q-feedback"></div>
+    <div class="quiz-actions">
+      <button class="btn btn-primary" id="btn-next" onclick="nextQuestion()" style="display:none">下一題</button>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div class="screen" id="screen-result">
+    <div class="score-circle">
+      <span class="score-num" id="r-score"></span>
+      <span class="score-label">分</span>
+    </div>
+    <div class="result-message" id="r-message"></div>
+    <div class="result-sub" id="r-sub"></div>
+    <div class="result-actions">
+      <button class="btn btn-primary" onclick="retryWrong()" id="btn-retry-wrong">重練錯題</button>
+      <button class="btn btn-outline" onclick="goStart()">重新選擇</button>
+    </div>
+    <div style="margin-top:28px">
+      <div class="section-title">詳細結果</div>
+      <div class="review-list" id="review-list"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const ALL_QUESTIONS = [
+
+  // ── p8 有效性 vs 效率 ──
+  { tag:"p8｜有效性與效率",
+    text:"下列關於「有效性」的描述，何者正確？",
+    opts:["資源投入與產出的比率","組織目的的達成度及與環境的互動關係","生產成本最小化的程度","員工工作效能的評估指標"],
+    ans:1 },
+  { tag:"p8｜有效性與效率",
+    text:"福特汽車雖在「效率」上創造了汽車工業，卻因何原因導致市場地位被通用超越？",
+    opts:["生產成本過高","過度投資研發","敗在「有效性」上，未能適應環境變化","勞資關係惡化"],
+    ans:2 },
+  { tag:"p8｜有效性與效率",
+    text:"一般而言，「有效性」與「效率」何者較為重要？",
+    opts:["效率較重要，因為可降低成本","兩者同等重要，無法比較","有效性較重要","視產業而定，無定論"],
+    ans:2 },
+
+  // ── p13-14 策略層級 ──
+  { tag:"p13-14｜策略層級",
+    text:"下列何者屬於「公司層級」策略的主要內容？",
+    opts:["生產、行銷、研發、人事等功能策略","事業部門間的競爭策略","事業領域的決定與資源能耐","加乘效果的發揮"],
+    ans:2 },
+  { tag:"p13-14｜策略層級",
+    text:"單一事業的企業，其事業層級策略與何者相同？",
+    opts:["功能層級策略","公司層級策略","競爭層級策略","市場層級策略"],
+    ans:1 },
+  { tag:"p13-14｜策略層級",
+    text:"「功能層級」策略的主要內容為何？",
+    opts:["事業領域的決定","各事業部門的競爭策略","生產、行銷、研發、人事等策略，主要強調加乘效果","企業的長期願景規劃"],
+    ans:2 },
+
+  // ── p17 創新策略 ──
+  { tag:"p17｜創新策略",
+    text:"大和（YAMATO）運輸宅配事業（宅急便）最能說明下列哪種策略的演進？",
+    opts:["由「效率」策略進化至「有效性」策略","由傳統的「適應」策略進化至「創新」策略","由「差異化」策略進化至「成本領導」策略","由「集中」策略進化至「全產業」策略"],
+    ans:1 },
+  { tag:"p17｜創新策略",
+    text:"關於企業「創新」策略，下列敘述何者有誤？",
+    opts:["包含新產品、新事業、新市場的開發","包含新的事業概念與企業內外資源的動員","企業內創新即所謂的 ベンチャービジネス","創新策略即等同於降低成本的效率策略"],
+    ans:3 },
+
+  // ── p23 企業領域定義要件 ──
+  { tag:"p23｜企業領域定義要件",
+    text:"下列何者「不是」企業領域定義的要件？",
+    opts:["適度的範圍","具未來發展性的視野","可獲得組織內外共鳴的","以最低成本達成最高產出"],
+    ans:3 },
+  { tag:"p23｜企業領域定義要件",
+    text:"企業領域定義的四個要件中，下列何者正確？",
+    opts:["短期利潤最大化、適度的範圍、核心能力的形成、具未來發展性的視野","適度的範圍、具未來發展性的視野、核心能力的形成、可獲得組織內外共鳴的","競爭優勢建立、市場擴大、技術創新、人才培育","成本控制、品質提升、服務差異化、全球化"],
+    ans:1 },
+
+  // ── p24 行銷近視眼 ──
+  { tag:"p24｜行銷近視眼",
+    text:"中油將自己定義為「資源提供事業」而非「原油事業」，這是採用哪種定義方式？",
+    opts:["物理的定義","機能的定義","技術的定義","產品的定義"],
+    ans:1 },
+  { tag:"p24｜行銷近視眼",
+    text:"「行銷近視眼」是指企業定義自身事業領域時犯了何種錯誤？",
+    opts:["定義過於空泛，缺乏焦點","定義過於狹隘，以產品而非顧客需求為中心","定義過於依賴技術而忽略市場","定義太注重短期利潤"],
+    ans:1 },
+  { tag:"p24｜行銷近視眼",
+    text:"「機能的定義」與「物理的定義」最大的差異在於？",
+    opts:["機能的定義以生產技術為核心","機能的定義是以顧客志向、與市場需求關連的定義","物理的定義著重於顧客體驗","兩者在實務上並無差異"],
+    ans:1 },
+
+  // ── p26 縱深化 ──
+  { tag:"p26｜市場與技術縱深化",
+    text:"市場的「縱深化」不包含下列哪項內容？",
+    opts:["革新","洗練、精緻化","關聯技術的創新","大量生產以降低成本"],
+    ans:3 },
+  { tag:"p26｜市場與技術縱深化",
+    text:"關於技術的縱深化，下列何者正確？",
+    opts:["技術縱深化代表將技術應用範圍限縮至單一產品","技術縱深化涉及規模、顧客價值、嗜好的多樣化及變化","技術縱深化就是降低技術成本","技術縱深化等同於技術外包策略"],
+    ans:1 },
+
+  // ── p37 再定義的困難 ──
+  { tag:"p37｜企業領域再定義",
+    text:"關於企業領域「再定義」的困難，下列何者正確？",
+    opts:["企業越成功，再定義越容易，因為資源充沛","企業越成功，數年後的再定義會比成立期時困難得多","成熟期時再定義最容易，因競爭壓力最小","再定義只需高層決策，不會面臨組織內部阻力"],
+    ans:1 },
+  { tag:"p37｜企業領域再定義",
+    text:"企業進行「再定義」的最終目的是什麼？",
+    opts:["提高短期股東報酬","縮減非核心事業以節省成本","重整組織（革新、組織再造）","擴大所有事業部門規模"],
+    ans:2 },
+
+  // ── p46-47 事業策略要素 ──
+  { tag:"p46-47｜事業策略要素",
+    text:"下列何者「不是」事業策略的構成要素？",
+    opts:["事業使命","SWOT 分析（環境、資源分析）","事業目標","股東分紅政策"],
+    ans:3 },
+  { tag:"p46-47｜事業策略要素",
+    text:"「填補目標與實際狀況的差距」在事業策略中稱為？",
+    opts:["事業使命","事業領域定義","策略","競爭優勢"],
+    ans:2 },
+  { tag:"p46-47｜事業策略要素",
+    text:"關於「事業使命」，下列何者正確？",
+    opts:["「虧損事業一律撤退」本身就是一種策略","事業使命就是以同一尺度評價所有事業","將「為何經營此事業」明確化，才是成功的","事業使命等同於企業短期財務目標"],
+    ans:2 },
+
+  // ── p50-51 產品生命週期 ──
+  { tag:"p50｜產品生命週期",
+    text:"產品生命週期中，「現金流量」在哪個階段為「負」？",
+    opts:["成長期","成熟期","衰退期","導入期"],
+    ans:3 },
+  { tag:"p50｜產品生命週期",
+    text:"產品生命週期中，「利益（獲利）」在哪個階段最高？",
+    opts:["導入期","成長期","成熟期","衰退期"],
+    ans:1 },
+  { tag:"p50｜產品生命週期",
+    text:"產品生命週期各階段中，「成熟期」的策略焦點為何？",
+    opts:["市場擴大","市場滲透","市占率確保","生產效率"],
+    ans:2 },
+  { tag:"p51｜產品生命週期行銷策略",
+    text:"產品生命週期「導入期」的價格策略為何？",
+    opts:["最低","下降","高","上昇"],
+    ans:2 },
+  { tag:"p51｜產品生命週期行銷策略",
+    text:"產品生命週期「衰退期」的產品策略為何？",
+    opts:["基礎的","改良的","差異化","革新改造"],
+    ans:3 },
+  { tag:"p51｜產品生命週期行銷策略",
+    text:"產品生命週期「成長期」的策略重點為何？",
+    opts:["產品認知","品牌偏好","品牌忠誠度","顧客偏好"],
+    ans:1 },
+
+  // ── p54 五力分析 ──
+  { tag:"p54｜五力分析",
+    text:"波特五力分析中，下列何者「不是」其中一項力量？",
+    opts:["既有競爭者","供應商","政府法規","替代品"],
+    ans:2 },
+  { tag:"p54｜五力分析",
+    text:"下列何者屬於「市場進入障礙」的範疇？",
+    opts:["員工士氣低落","規模經濟、專利、品牌形象、轉換成本","產品生命週期進入衰退期","企業領域定義過於狹隘"],
+    ans:1 },
+
+  // ── p56 策略群組 ──
+  { tag:"p56｜策略群組",
+    text:"決定「策略群組」軸線時，需以何種要素為基準？",
+    opts:["企業成立年數","決定移動障礙的關鍵要素，如專業度、垂直整合程度等","股價與市值","企業員工人數"],
+    ans:1 },
+  { tag:"p56｜策略群組",
+    text:"透過「策略群組圖」可以達成下列哪些目的？",
+    opts:["僅能分析企業過去的歷史績效","可分析、預測策略方向性、業界趨勢，並找出臨界群組","只能了解各企業的成本結構","僅能比較各企業的市場規模"],
+    ans:1 },
+
+  // ── p59 三種經濟效果 ──
+  { tag:"p59｜規模／經驗／範圍經濟",
+    text:"「範圍經濟」是指？",
+    opts:["隨生產規模擴大而降低單位成本","隨累積生產經驗而降低成本","複數事業間共有通路、技術、品牌、生產設備等經營資源","透過垂直整合提升供應鏈效率"],
+    ans:2 },
+  { tag:"p59｜規模／經驗／範圍經濟",
+    text:"「經驗效果」主要影響下列哪些成本？",
+    opts:["原物料採購成本","一般人事費、間接製造費用、廣告、物流、銷售及一般管理等","土地與廠房的固定成本","研發專利費用"],
+    ans:1 },
+  { tag:"p59｜規模／經驗／範圍經濟",
+    text:"生產、開發、採購等活動因規模擴大而降低單位成本，稱為？",
+    opts:["範圍經濟","經驗效果","規模經濟","加乘效果"],
+    ans:2 },
+
+  // ── p62 BCG 矩陣 ──
+  { tag:"p62｜BCG 矩陣",
+    text:"BCG 矩陣中「明星事業」的特徵為何？",
+    opts:["市場成長率低、相對市佔率高，現金收入高","市場成長率高、相對市佔率低，需培養或撤退","市場成長率高、相對市佔率亦高，收益高但投資額亦高","市場成長率低、相對市佔率低，考慮撤退"],
+    ans:2 },
+  { tag:"p62｜BCG 矩陣",
+    text:"BCG 矩陣中，「明星事業」未來最可能演變為？",
+    opts:["問題兒童（Question Mark）","落水狗（Dog）","金牛事業（Cash Cow）","維持明星不變"],
+    ans:2 },
+];
+
+const LETTERS = ['A','B','C','D'];
+let quizMode = 'random';
+let quizQuestions = [];
+let currentIdx = 0;
+let correctCount = 0;
+let userAnswers = [];
+let wrongOnly = false;
+
+function selectMode(mode) {
+  quizMode = mode;
+  document.getElementById('mode-random').classList.toggle('active', mode === 'random');
+  document.getElementById('mode-all').classList.toggle('active', mode === 'all');
+}
+
+function startQuiz(fromWrong) {
+  if (fromWrong) {
+    quizQuestions = wrongOnly;
+  } else {
+    if (quizMode === 'random') {
+      const pool = [...ALL_QUESTIONS].sort(() => Math.random() - 0.5);
+      quizQuestions = pool.slice(0, 20);
+    } else {
+      quizQuestions = [...ALL_QUESTIONS];
+    }
+  }
+  currentIdx = 0; correctCount = 0; userAnswers = [];
+  showScreen('quiz');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = quizQuestions[currentIdx];
+  const total = quizQuestions.length;
+  document.getElementById('q-counter').textContent = `第 ${currentIdx + 1} 題 / 共 ${total} 題`;
+  document.getElementById('q-score-live').textContent = `答對：${correctCount} 題`;
+  document.getElementById('progress-fill').style.width = `${(currentIdx / total) * 100}%`;
+  document.getElementById('q-chapter-tag').textContent = q.tag;
+  document.getElementById('q-text').textContent = q.text;
+
+  const optContainer = document.getElementById('q-options');
+  optContainer.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="opt-letter">${LETTERS[i]}</span><span>${opt}</span>`;
+    btn.onclick = () => selectAnswer(i);
+    optContainer.appendChild(btn);
+  });
+
+  document.getElementById('q-feedback').style.display = 'none';
+  document.getElementById('q-feedback').className = 'feedback';
+  document.getElementById('btn-next').style.display = 'none';
+}
+
+function selectAnswer(chosen) {
+  const q = quizQuestions[currentIdx];
+  const isCorrect = chosen === q.ans;
+  if (isCorrect) correctCount++;
+  userAnswers.push({ q, chosen, isCorrect });
+
+  const btns = document.querySelectorAll('.option-btn');
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.ans) btn.classList.add('correct');
+    else if (i === chosen && !isCorrect) btn.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('q-feedback');
+  if (isCorrect) {
+    fb.className = 'feedback correct';
+    fb.textContent = '答對了！';
+  } else {
+    fb.className = 'feedback wrong';
+    fb.textContent = `答錯了！正確答案是 (${LETTERS[q.ans]}) ${q.opts[q.ans]}`;
+  }
+  fb.style.display = 'block';
+
+  const btnNext = document.getElementById('btn-next');
+  btnNext.style.display = 'inline-block';
+  btnNext.textContent = currentIdx + 1 < quizQuestions.length ? '下一題' : '查看結果';
+}
+
+function nextQuestion() {
+  currentIdx++;
+  if (currentIdx < quizQuestions.length) renderQuestion();
+  else showResult();
+}
+
+function showResult() {
+  const total = quizQuestions.length;
+  const score = Math.round((correctCount / total) * 100);
+  document.getElementById('r-score').textContent = score;
+
+  let msg, sub;
+  if (score === 100) { msg = '滿分！太厲害了！'; sub = '全部答對，繼續保持！'; }
+  else if (score >= 80) { msg = '很棒！快接近滿分了'; sub = `答對 ${correctCount} 題，共 ${total} 題`; }
+  else if (score >= 60) { msg = '及格！還有進步空間'; sub = `答對 ${correctCount} 題，共 ${total} 題`; }
+  else { msg = '繼續努力！多練習幾次'; sub = `答對 ${correctCount} 題，共 ${total} 題`; }
+
+  document.getElementById('r-message').textContent = msg;
+  document.getElementById('r-sub').textContent = sub;
+
+  const list = document.getElementById('review-list');
+  list.innerHTML = '';
+  userAnswers.forEach((item, idx) => {
+    const div = document.createElement('div');
+    div.className = `review-item ${item.isCorrect ? 'correct-item' : 'wrong-item'}`;
+    let html = `<div class="r-question"><strong>Q${idx+1}.</strong> ${item.q.text}</div>`;
+    if (!item.isCorrect) {
+      html += `<div class="r-your">你的答案：(${LETTERS[item.chosen]}) ${item.q.opts[item.chosen]}</div>`;
+    }
+    html += `<div class="r-correct">正確答案：(${LETTERS[item.q.ans]}) ${item.q.opts[item.q.ans]}</div>`;
+    div.innerHTML = html;
+    list.appendChild(div);
+  });
+
+  wrongOnly = userAnswers.filter(a => !a.isCorrect).map(a => a.q);
+  document.getElementById('btn-retry-wrong').style.display = wrongOnly.length > 0 ? 'inline-block' : 'none';
+  showScreen('result');
+}
+
+function retryWrong() { startQuiz(true); }
+function goStart() { showScreen('start'); }
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+}
+</script>
+</body>
+</html>

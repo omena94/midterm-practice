@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>休閒事業管理 - 題庫練習</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+    background: #F0EBE3;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .container {
+    background: #F8F5F1;
+    border-radius: 20px;
+    box-shadow: 0 12px 40px rgba(106,96,88,0.15);
+    width: 100%;
+    max-width: 760px;
+    overflow: hidden;
+  }
+
+  .header {
+    background: #8A9FA7;
+    color: white;
+    padding: 28px 32px;
+    text-align: center;
+  }
+  .header h1 { font-size: 1.6rem; font-weight: 700; letter-spacing: 1px; }
+  .header p  { opacity: 0.85; margin-top: 6px; font-size: 0.9rem; }
+
+  /* ── SCREENS ── */
+  .screen { padding: 32px; display: none; }
+  .screen.active { display: block; }
+
+  /* ── START SCREEN ── */
+  .chapter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    margin: 20px 0;
+  }
+  .chapter-card {
+    border: 2px solid #D8D1C9;
+    border-radius: 12px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all .2s;
+    text-align: center;
+  }
+  .chapter-card:hover { border-color: #8A9FA7; background: #DCE5E9; }
+  .chapter-card.selected { border-color: #8A9FA7; background: #DCE5E9; }
+  .chapter-card .num { font-size: 1.5rem; font-weight: 800; color: #8A9FA7; }
+  .chapter-card .name { font-size: 0.85rem; color: #8A847E; margin-top: 4px; }
+
+  .start-options {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 16px 0;
+    align-items: center;
+  }
+  .start-options label { display: flex; align-items: center; gap: 6px; font-size: 0.9rem; cursor: pointer; }
+
+  .btn {
+    display: inline-block;
+    padding: 12px 28px;
+    border-radius: 10px;
+    border: none;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .btn-primary { background: #8A9FA7; color: white; }
+  .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .btn-outline { background: #F8F5F1; color: #8A9FA7; border: 2px solid #8A9FA7; }
+  .btn-outline:hover { background: #EAE5DF; }
+  .btn-sm { padding: 8px 18px; font-size: 0.9rem; }
+
+  /* ── QUIZ SCREEN ── */
+  .progress-bar-wrap {
+    background: #D8D1C9;
+    border-radius: 99px;
+    height: 8px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    background: #8A9FA7;
+    height: 100%;
+    border-radius: 99px;
+    transition: width .4s ease;
+  }
+  .quiz-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: #8A847E;
+    margin-bottom: 8px;
+  }
+  .chapter-tag {
+    display: inline-block;
+    background: #DCE5E9;
+    color: #6B8088;
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 99px;
+    margin-bottom: 12px;
+  }
+  .question-text {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: #3A3530;
+    margin-bottom: 24px;
+    font-weight: 500;
+  }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 18px;
+    border: 2px solid #D8D1C9;
+    border-radius: 12px;
+    background: #F8F5F1;
+    cursor: pointer;
+    font-size: 0.95rem;
+    text-align: left;
+    transition: all .15s;
+    width: 100%;
+    line-height: 1.5;
+  }
+  .option-btn:hover:not(:disabled) { border-color: #8A9FA7; background: #EAE5DF; }
+  .option-btn .opt-letter {
+    min-width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #D8D1C9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .option-btn.correct { border-color: #7B9E80; background: #E4EFE5; }
+  .option-btn.correct .opt-letter { background: #7B9E80; color: white; }
+  .option-btn.wrong { border-color: #AE7878; background: #F2E5E5; }
+  .option-btn.wrong .opt-letter { background: #AE7878; color: white; }
+  .option-btn:disabled { cursor: default; }
+
+  .feedback {
+    margin-top: 18px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    display: none;
+  }
+  .feedback.correct { background: #E4EFE5; color: #4E7252; border: 1px solid #7B9E80; }
+  .feedback.wrong   { background: #F2E5E5; color: #7A4848; border: 1px solid #AE7878; }
+
+  .quiz-actions { margin-top: 22px; display: flex; justify-content: flex-end; }
+
+  /* ── RESULT SCREEN ── */
+  .score-circle {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    background: #8A9FA7;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    color: white;
+  }
+  .score-circle .score-num { font-size: 2.5rem; font-weight: 800; line-height: 1; }
+  .score-circle .score-label { font-size: 0.8rem; opacity: 0.85; }
+
+  .result-message { text-align: center; font-size: 1.2rem; font-weight: 600; color: #3A3530; margin-bottom: 6px; }
+  .result-sub { text-align: center; font-size: 0.9rem; color: #8A847E; margin-bottom: 28px; }
+
+  .review-list { margin: 20px 0; }
+  .review-item {
+    border: 1px solid #D8D1C9;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+  }
+  .review-item.correct-item { border-left: 4px solid #7B9E80; }
+  .review-item.wrong-item   { border-left: 4px solid #AE7878; }
+  .review-item .r-question  { color: #3A3530; margin-bottom: 6px; line-height: 1.5; }
+  .review-item .r-your      { color: #AE7878; }
+  .review-item .r-correct   { color: #7B9E80; font-weight: 600; }
+
+  .result-actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 12px; }
+
+  .section-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #8A9FA7;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+  .select-all-row { display: flex; gap: 10px; margin-bottom: 10px; }
+
+  .mode-group { display: flex; gap: 12px; margin-bottom: 24px; }
+  .mode-card {
+    flex: 1; padding: 24px 16px; border: 2px solid #D8D1C9; border-radius: 12px;
+    background: #F8F5F1; cursor: pointer; text-align: center; transition: all .2s;
+  }
+  .mode-card:hover { border-color: #8A9FA7; }
+  .mode-card.active { border-color: #8A9FA7; background: #DCE5E9; }
+  .mode-card h3 { font-size: 18px; margin-bottom: 6px; color: #3A3530; }
+  .mode-card p { font-size: 13px; color: #8A847E; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div style="margin-bottom:10px"><a href="index.html" style="color:rgba(255,255,255,0.85);text-decoration:none;font-size:14px;font-weight:600;">&#9664; 返回主頁</a></div>
+    <h1>休閒事業管理題庫練習</h1>
+    <p>選擇章節開始練習</p>
+  </div>
+
+  <!-- START SCREEN -->
+  <div class="screen active" id="screen-start">
+    <div class="section-title">選擇練習模式</div>
+    <div class="mode-group">
+      <div class="mode-card active" id="mode-random" onclick="selectMode('random')">
+        <h3>隨機 20 題</h3>
+        <p>從題庫隨機抽取 20 題</p>
+      </div>
+      <div class="mode-card" id="mode-all" onclick="selectMode('all')">
+        <h3>全部練習</h3>
+        <p>依序作答所有題目</p>
+      </div>
+    </div>
+    <button class="btn btn-primary" id="btn-start" onclick="startQuiz()">開始練習</button>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div class="screen" id="screen-quiz">
+    <div class="quiz-meta">
+      <span id="q-counter"></span>
+      <span id="q-score-live">答對：0 題</span>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progress-fill"></div>
+    </div>
+    <div class="chapter-tag" id="q-chapter-tag"></div>
+    <div class="question-text" id="q-text"></div>
+    <div class="options" id="q-options"></div>
+    <div class="feedback" id="q-feedback"></div>
+    <div class="quiz-actions">
+      <button class="btn btn-primary" id="btn-next" onclick="nextQuestion()" style="display:none">下一題</button>
+    </div>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div class="screen" id="screen-result">
+    <div class="score-circle">
+      <span class="score-num" id="r-score"></span>
+      <span class="score-label">分</span>
+    </div>
+    <div class="result-message" id="r-message"></div>
+    <div class="result-sub" id="r-sub"></div>
+    <div class="result-actions">
+      <button class="btn btn-primary" onclick="retryWrong()" id="btn-retry-wrong">重練錯題</button>
+      <button class="btn btn-outline" onclick="goStart()">重新選擇</button>
+    </div>
+    <div style="margin-top:28px">
+      <div class="section-title">詳細結果</div>
+      <div class="review-list" id="review-list"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const ALL_QUESTIONS = [
+  // Chapter 01
+  { ch:1, chName:"Ch01 休閒事業的緣起與發展",
+    text:"闡述休閒應是繁忙勞動的目的，而不是輔助勞動效益的工具，更不是必要工作時間之外的殘餘的哲學家是",
+    opts:["亞里斯多德","奧古斯汀","柏拉圖","蘇格拉底"], ans:0 },
+  { ch:1, chName:"Ch01 休閒事業的緣起與發展",
+    text:"旅館客房當晚結束之前無人登記住宿；另外機位在班機起飛前仍然沒人購買而喪失銷售機會，這是服務業的哪種特性？",
+    opts:["異質性","不可分割性","易滅性","無形性"], ans:2 },
+  { ch:1, chName:"Ch01 休閒事業的緣起與發展",
+    text:"顧客在餐廳用餐，服務生在從事生產（服務）的同時，顧客進行消費（用餐），以上說明是服務業的",
+    opts:["無形性","不可分割性","異質性","易滅性"], ans:1 },
+  { ch:1, chName:"Ch01 休閒事業的緣起與發展",
+    text:"休閒具有「允許」（license）與「自由」（liberty）之意，亦即被社會允許的自由時間或自由活動。以上休閒說法是屬於哪種看法？",
+    opts:["社會階層觀點","心靈觀點","古典的角度","活動觀點"], ans:2 },
+  { ch:1, chName:"Ch01 休閒事業的緣起與發展",
+    text:"旅遊逐漸成為上層社會人士休閒活動之一，是屬於哪種休閒歷史演進？",
+    opts:["宗教時期","工業革命","文藝復興時期","古希臘時期"], ans:2 },
+
+  // Chapter 02
+  { ch:2, chName:"Ch02 航空業",
+    text:"針對航空業的特性，下列說法何者為非？",
+    opts:[
+      "航空業是生產與消費提供服務的產業，其經營受到其他產業興衰和民眾生活需求的影響",
+      "航空服務具有不可儲存的特性",
+      "照顧民眾「行」的需求乃是政府責無旁貸的作為",
+      "以上皆非"
+    ], ans:3 },
+  { ch:2, chName:"Ch02 航空業",
+    text:"下列何者不是影響航空業的外部環境因素？",
+    opts:["人民生活型態的改變","國際環境的變化","成本與營收管理策略","競爭運具的加入"], ans:2 },
+  { ch:2, chName:"Ch02 航空業",
+    text:"以下何者是航空公司評估及發展聯盟策略的步驟？",
+    opts:[
+      "確認並釐清航空公司參加的目的與目標",
+      "決定採用何種聯盟方式以期達到聯盟目的",
+      "針對不同潛在夥伴進行聯盟的效益評估",
+      "以上皆是"
+    ], ans:3 },
+  { ch:2, chName:"Ch02 航空業",
+    text:"對航空公司而言，其燃油成本和勞務成本比較是",
+    opts:["燃油成本小於勞務成本","燃油成本大於勞務成本","燃油成本略等於勞務成本","兩種成本無法比較"], ans:0 },
+  { ch:2, chName:"Ch02 航空業",
+    text:"飛機起飛或巡航時，其發動機處於高溫狀況，會產生下列何種特殊氧化物導致航空廢氣？",
+    opts:["硫氧化物","氮氧化物","磷氧化物","矽氧化物"], ans:1 },
+
+  // Chapter 03
+  { ch:3, chName:"Ch03 旅宿業",
+    text:"請問星級旅館評鑑標示之有效期限為幾年？",
+    opts:["3 年","5 年","7 年","10 年"], ans:0 },
+  { ch:3, chName:"Ch03 旅宿業",
+    text:"請問好客民宿標章之有效期限為幾年？",
+    opts:["2 年","3 年","4 年","5 年"], ans:1 },
+  { ch:3, chName:"Ch03 旅宿業",
+    text:"請問商務旅客較休閒旅客較重視下列何者？",
+    opts:["旅館聲譽","旅館商標識別度","價格","熟悉與舒適"], ans:3 },
+  { ch:3, chName:"Ch03 旅宿業",
+    text:"請問在旅宿業的未來發展趨勢中，下列何者不是旅館業的發展趨勢？",
+    opts:["多品牌策略","特色主題發展","經營專業化","智能服務發展"], ans:2 },
+  { ch:3, chName:"Ch03 旅宿業",
+    text:"請問在旅宿業的未來發展趨勢中，下列何者不是民宿業的發展趨勢？",
+    opts:["主題創新發展","經營專業化","產業策略聯盟","多品牌行銷"], ans:3 },
+
+  // Chapter 04
+  { ch:4, chName:"Ch04 餐飲業",
+    text:"根據我國「中華民國行業營業項目標準」，餐飲業區分為哪三大類？",
+    opts:[
+      "餐食業、餐館業與飲料業",
+      "餐廳、餐館業與飲料業",
+      "餐食業、外燴及團膳承包業與飲料業",
+      "餐廳、外燴及團膳承包業與飲料業"
+    ], ans:2 },
+  { ch:4, chName:"Ch04 餐飲業",
+    text:"在餐飲業服務方式中，供餐服務是依顧客需求來點菜，再由專業服務人員依顧客所點餐食來供應，所有菜餚均由服務員自廚房端送至餐桌給客人。這是指",
+    opts:["餐桌服務","櫃檯服務","自助餐服務","外送服務"], ans:1 },
+  { ch:4, chName:"Ch04 餐飲業",
+    text:"在餐飲業的經營方式中，連鎖餐廳具有許多經營管理上的優點，下列何者正確？",
+    opts:["資金與人力資源雄厚","知名度較高","標準化作業可降低成本","以上皆是"], ans:3 },
+  { ch:4, chName:"Ch04 餐飲業",
+    text:"在選擇餐廳名稱的考量因素上，下列何者較不適當？",
+    opts:[
+      "要能讓消費者印象深刻而且容易記憶",
+      "可運用具流行感或奇特新穎名稱命名",
+      "直接採用主要競爭者的餐廳名稱命名",
+      "可利用諧音及諧義的名稱命名"
+    ], ans:2 },
+  { ch:4, chName:"Ch04 餐飲業",
+    text:"在餐廳照明設備的規劃與設計上，下列何者較不適當？",
+    opts:[
+      "高級餐廳與注重私密的餐廳，著重於重點式的照明",
+      "餐廳入口適合較為昏暗的燈光",
+      "餐廳的照明以食物優先，桌面需打光",
+      "壁面可使用遮光器以便製造出柔和氣氛"
+    ], ans:1 },
+
+  // Chapter 05
+  { ch:5, chName:"Ch05 旅行業",
+    text:"請問我國旅行業區分為三種，不包括下列何種？",
+    opts:["甲種旅行社","乙種旅行社","丙種旅行社","綜合旅行社"], ans:2 },
+  { ch:5, chName:"Ch05 旅行業",
+    text:"請問旅行業之特性，不包括何種？",
+    opts:["品牌性","合作性","僵硬性","易變性"], ans:0 },
+  { ch:5, chName:"Ch05 旅行業",
+    text:"請問團體旅遊的特點為何？",
+    opts:["無最基本人數要求","共同售價","團體活動鬆散、個別活動較多","不需簽訂旅遊契約"], ans:1 },
+  { ch:5, chName:"Ch05 旅行業",
+    text:"下列何者不是旅行業的未來發展趨勢？",
+    opts:["產業策略聯盟","拓展銀髮族客群","更多更即時的行動支付","旅行業品牌化"], ans:0 },
+  { ch:5, chName:"Ch05 旅行業",
+    text:"下列何者並非特別興趣團體全備旅遊特性？",
+    opts:["承辦者具專業知識","屬小眾市場","較無淡旺季","預算充足"], ans:3 },
+
+  // Chapter 06
+  { ch:6, chName:"Ch06 主題遊樂園",
+    text:"主題樂園在經營管理上具有四大特性，下列何者為非？",
+    opts:["服務內容多樣性","遊客嗜好一致性","來園人數波動顯著","遊客的知覺重要"], ans:1 },
+  { ch:6, chName:"Ch06 主題遊樂園",
+    text:"學者統整出主題樂園有五大產業特性，下列何者為非？",
+    opts:["綜合型產業","小型化發展","寡占事業","高風險產業"], ans:1 },
+  { ch:6, chName:"Ch06 主題遊樂園",
+    text:"全球主題樂園遊客量數量最多是哪一國家？",
+    opts:["美國","日本","中國","法國"], ans:0 },
+  { ch:6, chName:"Ch06 主題遊樂園",
+    text:"臺灣哪一地區的主題樂園數量最多？",
+    opts:["中部地區","東部地區","北部地區","南部地區"], ans:0 },
+  { ch:6, chName:"Ch06 主題遊樂園",
+    text:"Pine and Gilmore 提出體驗可依顧客參與方式及環境因素當作區分構面，可分成四種特性類型，下列何者為非？",
+    opts:["教育","逃避現實","娛樂","冒險"], ans:3 },
+];
+
+const CHAPTERS = [
+  { id:1, name:"休閒事業的緣起與發展" },
+  { id:2, name:"航空業" },
+  { id:3, name:"旅宿業" },
+  { id:4, name:"餐飲業" },
+  { id:5, name:"旅行業" },
+  { id:6, name:"主題遊樂園" },
+];
+
+const LETTERS = ['A','B','C','D'];
+
+let quizMode = 'random';
+let quizQuestions = [];
+let currentIdx = 0;
+let correctCount = 0;
+let userAnswers = [];
+let wrongOnly = false;
+
+function selectMode(mode) {
+  quizMode = mode;
+  document.getElementById('mode-random').classList.toggle('active', mode === 'random');
+  document.getElementById('mode-all').classList.toggle('active', mode === 'all');
+}
+
+function startQuiz(fromWrong) {
+  if (fromWrong) {
+    quizQuestions = wrongOnly;
+  } else {
+    if (quizMode === 'random') {
+      const pool = [...ALL_QUESTIONS].sort(() => Math.random() - 0.5);
+      quizQuestions = pool.slice(0, 20);
+    } else {
+      quizQuestions = [...ALL_QUESTIONS];
+    }
+  }
+  currentIdx = 0;
+  correctCount = 0;
+  userAnswers = [];
+  showScreen('quiz');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = quizQuestions[currentIdx];
+  const total = quizQuestions.length;
+
+  document.getElementById('q-counter').textContent = `第 ${currentIdx + 1} 題 / 共 ${total} 題`;
+  document.getElementById('q-score-live').textContent = `答對：${correctCount} 題`;
+  document.getElementById('progress-fill').style.width = `${(currentIdx / total) * 100}%`;
+  document.getElementById('q-chapter-tag').textContent = q.chName;
+  document.getElementById('q-text').textContent = q.text;
+
+  const optContainer = document.getElementById('q-options');
+  optContainer.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="opt-letter">${LETTERS[i]}</span><span>${opt}</span>`;
+    btn.onclick = () => selectAnswer(i);
+    optContainer.appendChild(btn);
+  });
+
+  document.getElementById('q-feedback').style.display = 'none';
+  document.getElementById('q-feedback').className = 'feedback';
+  document.getElementById('btn-next').style.display = 'none';
+}
+
+function selectAnswer(chosen) {
+  const q = quizQuestions[currentIdx];
+  const isCorrect = chosen === q.ans;
+
+  if (isCorrect) correctCount++;
+  userAnswers.push({ q, chosen, isCorrect });
+
+  // Disable all buttons and highlight
+  const btns = document.querySelectorAll('.option-btn');
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.ans) btn.classList.add('correct');
+    else if (i === chosen && !isCorrect) btn.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('q-feedback');
+  if (isCorrect) {
+    fb.className = 'feedback correct';
+    fb.textContent = '答對了！';
+  } else {
+    fb.className = 'feedback wrong';
+    fb.textContent = `答錯了！正確答案是 (${LETTERS[q.ans]}) ${q.opts[q.ans]}`;
+  }
+  fb.style.display = 'block';
+
+  const btnNext = document.getElementById('btn-next');
+  btnNext.style.display = 'inline-block';
+  btnNext.textContent = currentIdx + 1 < quizQuestions.length ? '下一題' : '查看結果';
+}
+
+function nextQuestion() {
+  currentIdx++;
+  if (currentIdx < quizQuestions.length) {
+    renderQuestion();
+  } else {
+    showResult();
+  }
+}
+
+function showResult() {
+  const total = quizQuestions.length;
+  const score = Math.round((correctCount / total) * 100);
+
+  document.getElementById('r-score').textContent = score;
+
+  let msg, sub;
+  if (score === 100) { msg = '滿分！太厲害了！'; sub = '全部答對，繼續保持！'; }
+  else if (score >= 80) { msg = '很棒！快接近滿分了'; sub = `答對 ${correctCount} 題，共 ${total} 題`; }
+  else if (score >= 60) { msg = '及格！還有進步空間'; sub = `答對 ${correctCount} 題，共 ${total} 題`; }
+  else { msg = '繼續努力！多練習幾次'; sub = `答對 ${correctCount} 題，共 ${total} 題`; }
+
+  document.getElementById('r-message').textContent = msg;
+  document.getElementById('r-sub').textContent = sub;
+
+  // Build review list
+  const list = document.getElementById('review-list');
+  list.innerHTML = '';
+  userAnswers.forEach((item, idx) => {
+    const div = document.createElement('div');
+    div.className = `review-item ${item.isCorrect ? 'correct-item' : 'wrong-item'}`;
+    let html = `<div class="r-question"><strong>Q${idx+1}.</strong> ${item.q.text}</div>`;
+    if (!item.isCorrect) {
+      html += `<div class="r-your">你的答案：(${LETTERS[item.chosen]}) ${item.q.opts[item.chosen]}</div>`;
+    }
+    html += `<div class="r-correct">正確答案：(${LETTERS[item.q.ans]}) ${item.q.opts[item.q.ans]}</div>`;
+    div.innerHTML = html;
+    list.appendChild(div);
+  });
+
+  // Prepare wrong questions for retry
+  wrongOnly = userAnswers.filter(a => !a.isCorrect).map(a => a.q);
+  const btnRetryWrong = document.getElementById('btn-retry-wrong');
+  btnRetryWrong.style.display = wrongOnly.length > 0 ? 'inline-block' : 'none';
+
+  showScreen('result');
+}
+
+function retryWrong() {
+  startQuiz(true);
+}
+
+function goStart() {
+  showScreen('start');
+}
+
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+}
+</script>
+</body>
+</html>
