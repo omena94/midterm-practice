@@ -240,17 +240,9 @@ body {
     </div>
 
     <div id="section-quiz">
-      <p style="color:var(--text-light);font-size:14px;margin-bottom:16px;text-align:center">共三章 60 題選擇題</p>
+      <p style="color:var(--text-light);font-size:14px;margin-bottom:16px;text-align:center">共三章 60 題選擇題（AI 生成，非老師題庫）</p>
       <div class="mode-group">
-        <div class="mode-card active" data-mode="random" onclick="selectMode('random')">
-          <h3>隨機 25 題</h3>
-          <p>從 60 題中隨機抽取 25 題</p>
-        </div>
-        <div class="mode-card" data-mode="all" onclick="selectMode('all')">
-          <h3>全部 60 題</h3>
-          <p>依序作答全部三章</p>
-        </div>
-        <div class="mode-card" data-mode="ch0" onclick="selectMode('ch0')">
+        <div class="mode-card active" data-mode="ch0" onclick="selectMode('ch0')">
           <h3>第一章</h3>
           <p>科技管理導論 · 20 題</p>
         </div>
@@ -541,7 +533,7 @@ var chapters = [
 ];
 
 // ==================== STATE ====================
-var quizMode = "random";
+var quizMode = "ch0";
 var questions = [];
 var currentIndex = 0;
 var userAnswers = {};
@@ -585,7 +577,7 @@ function startQuiz() {
     questions = pool;
   }
   currentIndex = 0; userAnswers = {}; answered = {};
-  var titles = {random:"隨機 25 題", all:"全部 60 題", ch0:"第一章", ch1:"第二章", ch2:"第三章"};
+  var titles = {ch0:"第一章", ch1:"第二章", ch2:"第三章"};
   document.getElementById("quiz-title").textContent = titles[quizMode];
   document.getElementById("quiz-total").textContent = questions.length;
   showPage("quiz");
@@ -728,7 +720,7 @@ function goHome() {
 
 // ==================== HISTORY ====================
 function saveHistory(pct, correct, wrong, unanswered) {
-  var modeNames = {random:"隨機25題", all:"全部60題", ch0:"第一章", ch1:"第二章", ch2:"第三章"};
+  var modeNames = {ch0:"第一章", ch1:"第二章", ch2:"第三章"};
   var history = JSON.parse(localStorage.getItem("mgmtQuizHistory") || "[]");
   history.unshift({
     mode: modeNames[quizMode], score: pct, correct: correct, wrong: wrong,
