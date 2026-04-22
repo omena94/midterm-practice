@@ -237,6 +237,86 @@
   .mode-card .mode-num { font-size: 3rem; font-weight: 800; color: #667eea; line-height: 1; }
   .mode-card .mode-title { font-size: 1.1rem; font-weight: 700; color: #2d3748; margin-top: 10px; }
   .mode-card .mode-desc { font-size: 0.82rem; color: #718096; margin-top: 6px; line-height: 1.6; }
+
+  .bank-link {
+    display: block;
+    text-align: center;
+    margin-top: 18px;
+    color: #667eea;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 8px;
+    transition: background .15s;
+  }
+  .bank-link:hover { background: #f5f3ff; }
+
+  /* ── BANK SCREEN ── */
+  .bank-ch-header {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin: 20px 0 10px;
+    letter-spacing: 0.5px;
+  }
+  .bank-q {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+  }
+  .bank-q-text {
+    color: #2d3748;
+    font-weight: 500;
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+  .bank-q-num {
+    display: inline-block;
+    background: #ede9fe;
+    color: #6b46c1;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 99px;
+    margin-bottom: 6px;
+  }
+  .bank-opts { display: flex; flex-direction: column; gap: 6px; }
+  .bank-opt {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: #f7fafc;
+    font-size: 0.88rem;
+    line-height: 1.5;
+  }
+  .bank-opt.correct {
+    background: #f0fff4;
+    border: 1px solid #c6f6d5;
+    font-weight: 600;
+    color: #276749;
+  }
+  .bank-opt .opt-l {
+    min-width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.78rem;
+    flex-shrink: 0;
+  }
+  .bank-opt.correct .opt-l { background: #38a169; color: white; }
+  .bank-back { margin-bottom: 16px; }
 </style>
 </head>
 <body>
@@ -261,6 +341,16 @@
         <div class="mode-desc">完整練習所有題目<br>依章節順序</div>
       </div>
     </div>
+    <div class="bank-link" onclick="showBank()">查看全部題庫</div>
+  </div>
+
+  <!-- BANK SCREEN -->
+  <div class="screen" id="screen-bank">
+    <div class="bank-back">
+      <button class="btn btn-outline btn-sm" onclick="showScreen('start')">返回</button>
+    </div>
+    <div class="section-title">全部題庫</div>
+    <div id="bank-content"></div>
   </div>
 
   <!-- QUIZ SCREEN -->
@@ -610,6 +700,39 @@ function goStart() {
 function showScreen(name) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('screen-' + name).classList.add('active');
+}
+
+function showBank() {
+  const container = document.getElementById('bank-content');
+  container.innerHTML = '';
+  let lastCh = null;
+  let qNum = 0;
+  ALL_QUESTIONS.forEach(q => {
+    if (q.ch !== lastCh) {
+      lastCh = q.ch;
+      qNum = 0;
+      const header = document.createElement('div');
+      header.className = 'bank-ch-header';
+      header.textContent = q.chName;
+      container.appendChild(header);
+    }
+    qNum++;
+    const div = document.createElement('div');
+    div.className = 'bank-q';
+    let html = `<div class="bank-q-num">Q${qNum}</div>`;
+    html += `<div class="bank-q-text">${q.text}</div>`;
+    html += `<div class="bank-opts">`;
+    q.opts.forEach((opt, i) => {
+      const isAns = i === q.ans;
+      html += `<div class="bank-opt${isAns ? ' correct' : ''}">
+        <span class="opt-l">${LETTERS[i]}</span><span>${opt}</span>
+      </div>`;
+    });
+    html += `</div>`;
+    div.innerHTML = html;
+    container.appendChild(div);
+  });
+  showScreen('bank');
 }
 </script>
 </body>
