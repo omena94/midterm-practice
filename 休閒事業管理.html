@@ -9,7 +9,7 @@
 
   body {
     font-family: 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #F0EBE3;
     min-height: 100vh;
     display: flex;
     align-items: center;
@@ -20,14 +20,14 @@
   .container {
     background: white;
     border-radius: 20px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    box-shadow: 0 20px 60px rgba(106,96,88,0.15);
     width: 100%;
     max-width: 760px;
     overflow: hidden;
   }
 
   .header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #9A7B6E 0%, #7A5A50 100%);
     color: white;
     padding: 28px 32px;
     text-align: center;
@@ -54,9 +54,9 @@
     transition: all .2s;
     text-align: center;
   }
-  .chapter-card:hover { border-color: #667eea; background: #f5f3ff; }
-  .chapter-card.selected { border-color: #667eea; background: #ede9fe; }
-  .chapter-card .num { font-size: 1.5rem; font-weight: 800; color: #667eea; }
+  .chapter-card:hover { border-color: #9A7B6E; background: #FAF7F4; }
+  .chapter-card.selected { border-color: #9A7B6E; background: #EDE8E4; }
+  .chapter-card .num { font-size: 1.5rem; font-weight: 800; color: #9A7B6E; }
   .chapter-card .name { font-size: 0.85rem; color: #4a5568; margin-top: 4px; }
 
   .start-options {
@@ -78,11 +78,11 @@
     cursor: pointer;
     transition: all .2s;
   }
-  .btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+  .btn-primary { background: linear-gradient(135deg, #9A7B6E, #7A5A50); color: white; }
   .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
   .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-  .btn-outline { background: white; color: #667eea; border: 2px solid #667eea; }
-  .btn-outline:hover { background: #f5f3ff; }
+  .btn-outline { background: white; color: #9A7B6E; border: 2px solid #9A7B6E; }
+  .btn-outline:hover { background: #FAF7F4; }
   .btn-sm { padding: 8px 18px; font-size: 0.9rem; }
 
   /* ── QUIZ SCREEN ── */
@@ -94,7 +94,7 @@
     overflow: hidden;
   }
   .progress-bar-fill {
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #9A7B6E, #7A5A50);
     height: 100%;
     border-radius: 99px;
     transition: width .4s ease;
@@ -108,8 +108,8 @@
   }
   .chapter-tag {
     display: inline-block;
-    background: #ede9fe;
-    color: #6b46c1;
+    background: #EDE8E4;
+    color: #7A5A50;
     font-size: 0.78rem;
     font-weight: 600;
     padding: 3px 10px;
@@ -139,7 +139,7 @@
     width: 100%;
     line-height: 1.5;
   }
-  .option-btn:hover:not(:disabled) { border-color: #a78bfa; background: #f5f3ff; }
+  .option-btn:hover:not(:disabled) { border-color: #C5A898; background: #FAF7F4; }
   .option-btn .opt-letter {
     min-width: 28px;
     height: 28px;
@@ -177,7 +177,7 @@
     width: 130px;
     height: 130px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #9A7B6E, #7A5A50);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -210,7 +210,7 @@
   .section-title {
     font-size: 0.85rem;
     font-weight: 700;
-    color: #667eea;
+    color: #9A7B6E;
     text-transform: uppercase;
     letter-spacing: 1px;
     margin-bottom: 12px;
@@ -232,9 +232,9 @@
     transition: all .2s;
     text-align: center;
   }
-  .mode-card:hover { border-color: #667eea; background: #f5f3ff; transform: translateY(-2px); }
+  .mode-card:hover { border-color: #9A7B6E; background: #FAF7F4; transform: translateY(-2px); }
   .mode-card:active { transform: translateY(0); }
-  .mode-card .mode-num { font-size: 3rem; font-weight: 800; color: #667eea; line-height: 1; }
+  .mode-card .mode-num { font-size: 3rem; font-weight: 800; color: #9A7B6E; line-height: 1; }
   .mode-card .mode-title { font-size: 1.1rem; font-weight: 700; color: #2d3748; margin-top: 10px; }
   .mode-card .mode-desc { font-size: 0.82rem; color: #718096; margin-top: 6px; line-height: 1.6; }
 
@@ -242,7 +242,7 @@
     display: block;
     text-align: center;
     margin-top: 18px;
-    color: #667eea;
+    color: #9A7B6E;
     font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
@@ -250,11 +250,11 @@
     border-radius: 8px;
     transition: background .15s;
   }
-  .bank-link:hover { background: #f5f3ff; }
+  .bank-link:hover { background: #FAF7F4; }
 
   /* ── BANK SCREEN ── */
   .bank-ch-header {
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #9A7B6E, #7A5A50);
     color: white;
     padding: 10px 16px;
     border-radius: 10px;
@@ -278,8 +278,8 @@
   }
   .bank-q-num {
     display: inline-block;
-    background: #ede9fe;
-    color: #6b46c1;
+    background: #EDE8E4;
+    color: #7A5A50;
     font-size: 0.75rem;
     font-weight: 700;
     padding: 2px 8px;
