@@ -216,29 +216,51 @@
     margin-bottom: 12px;
   }
   .select-all-row { display: flex; gap: 10px; margin-bottom: 10px; }
+
+  /* ── MODE CARDS ── */
+  .mode-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 24px 0 8px;
+  }
+  .mode-card {
+    border: 2px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 32px 16px;
+    cursor: pointer;
+    transition: all .2s;
+    text-align: center;
+  }
+  .mode-card:hover { border-color: #667eea; background: #f5f3ff; transform: translateY(-2px); }
+  .mode-card:active { transform: translateY(0); }
+  .mode-card .mode-num { font-size: 3rem; font-weight: 800; color: #667eea; line-height: 1; }
+  .mode-card .mode-title { font-size: 1.1rem; font-weight: 700; color: #2d3748; margin-top: 10px; }
+  .mode-card .mode-desc { font-size: 0.82rem; color: #718096; margin-top: 6px; line-height: 1.6; }
 </style>
 </head>
 <body>
 <div class="container">
   <div class="header">
     <h1>休閒事業管理題庫練習</h1>
-    <p>選擇章節開始練習</p>
+    <p>選擇練習模式</p>
   </div>
 
   <!-- START SCREEN -->
   <div class="screen active" id="screen-start">
-    <div class="section-title">選擇章節</div>
-    <div class="select-all-row">
-      <button class="btn btn-outline btn-sm" onclick="selectAll(true)">全選</button>
-      <button class="btn btn-outline btn-sm" onclick="selectAll(false)">取消全選</button>
+    <div class="section-title">選擇練習模式</div>
+    <div class="mode-grid">
+      <div class="mode-card" onclick="startMode('random20')">
+        <div class="mode-num">20</div>
+        <div class="mode-title">隨機 20 題</div>
+        <div class="mode-desc">從全部題庫中<br>隨機抽取 20 題</div>
+      </div>
+      <div class="mode-card" onclick="startMode('all')">
+        <div class="mode-num" id="all-count">40</div>
+        <div class="mode-title">全部練習</div>
+        <div class="mode-desc">完整練習所有題目<br>依章節順序</div>
+      </div>
     </div>
-    <div class="chapter-grid" id="chapter-grid"></div>
-
-    <div class="start-options">
-      <label><input type="checkbox" id="opt-shuffle"> 隨機排列題目</label>
-    </div>
-
-    <button class="btn btn-primary" id="btn-start" onclick="startQuiz()" disabled>開始練習</button>
   </div>
 
   <!-- QUIZ SCREEN -->
@@ -442,70 +464,32 @@ const ALL_QUESTIONS = [
     opts:["經濟功能","教育功能","文化傳承功能","研究功能"], ans:3 },
 ];
 
-const CHAPTERS = [
-  { id:1, name:"休閒事業的緣起與發展" },
-  { id:2, name:"航空業" },
-  { id:3, name:"旅宿業" },
-  { id:4, name:"餐飲業" },
-  { id:5, name:"旅行業" },
-  { id:6, name:"主題遊樂園" },
-  { id:7, name:"遊憩資源暨遊樂區" },
-  { id:8, name:"休閒農場與觀光工廠" },
-];
-
 const LETTERS = ['A','B','C','D'];
 
-let selectedChapters = new Set();
 let quizQuestions = [];
 let currentIdx = 0;
 let correctCount = 0;
 let userAnswers = [];
-let wrongOnly = false;
+let wrongOnly = [];
 
-// ── BUILD CHAPTER GRID ──
-const grid = document.getElementById('chapter-grid');
-CHAPTERS.forEach(ch => {
-  const card = document.createElement('div');
-  card.className = 'chapter-card';
-  card.innerHTML = `<div class="num">Ch.0${ch.id}</div><div class="name">${ch.name}</div>`;
-  card.onclick = () => toggleChapter(ch.id, card);
-  grid.appendChild(card);
-});
+// ── SET TOTAL COUNT ──
+document.getElementById('all-count').textContent = ALL_QUESTIONS.length;
 
-function toggleChapter(id, card) {
-  if (selectedChapters.has(id)) {
-    selectedChapters.delete(id);
-    card.classList.remove('selected');
+function startMode(mode) {
+  if (mode === 'random20') {
+    quizQuestions = [...ALL_QUESTIONS].sort(() => Math.random() - 0.5).slice(0, 20);
   } else {
-    selectedChapters.add(id);
-    card.classList.add('selected');
+    quizQuestions = [...ALL_QUESTIONS];
   }
-  document.getElementById('btn-start').disabled = selectedChapters.size === 0;
-}
-
-function selectAll(val) {
-  const cards = document.querySelectorAll('.chapter-card');
-  selectedChapters.clear();
-  cards.forEach((card, i) => {
-    if (val) {
-      selectedChapters.add(i + 1);
-      card.classList.add('selected');
-    } else {
-      card.classList.remove('selected');
-    }
-  });
-  document.getElementById('btn-start').disabled = !val;
+  currentIdx = 0;
+  correctCount = 0;
+  userAnswers = [];
+  showScreen('quiz');
+  renderQuestion();
 }
 
 function startQuiz(fromWrong) {
-  if (fromWrong) {
-    quizQuestions = wrongOnly;
-  } else {
-    quizQuestions = ALL_QUESTIONS.filter(q => selectedChapters.has(q.ch));
-    if (document.getElementById('opt-shuffle').checked) {
-      quizQuestions = [...quizQuestions].sort(() => Math.random() - 0.5);
-    }
-  }
+  quizQuestions = wrongOnly;
   currentIdx = 0;
   correctCount = 0;
   userAnswers = [];
